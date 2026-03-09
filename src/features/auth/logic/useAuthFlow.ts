@@ -7,16 +7,16 @@ import { useState } from 'react';
  * SUME DOCBLOCK
  * Nombre: Auth Flow
  * Tipo: Logic Block
- * 
+ *
  * Entradas:
  * - [Definir]
- * 
+ *
  * Acciones:
  * - [Definir]
- * 
+ *
  * Salidas:
  * - success: boolean
- * 
+ *
  * Errores:
  * - AUTH_FAILED
  */
@@ -25,11 +25,11 @@ export function useAuthFlow() {
   const [isLoading, setIsLoading] = useState(false);
 
   // U - Use
-  const executeFeature = async (params: any) => {
+  const executeFeature = async (_params?: unknown) => {
     setIsLoading(true);
     try {
       // M - Manage
-      
+
       return { success: true };
     } catch (error) {
       // E - Error
