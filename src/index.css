@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #07d5a1;
-  --color-accent: #F04770;
+  --color-brand: #07d5a1;
+  --color-brand-accent: #F04770;
   --color-bg-app: #f5f8f8;
   --color-dark-navy: #073A4B;
   --font-display: "Manrope", system-ui, sans-serif;

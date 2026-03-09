@@ -11,6 +11,7 @@ interface ItemModalProps {
 export function ItemModal({ item, onConfirm, onClose }: ItemModalProps) {
   const [selecciones, setSelecciones] = useState<Record<string, string | string[] | number>>({});
   const [nota, setNota] = useState('');
+  const [errors, setErrors] = useState<Set<string>>(new Set());
 
   const calcularTotal = () => {
     let extra = 0;
@@ -55,6 +56,22 @@ export function ItemModal({ item, onConfirm, onClose }: ItemModalProps) {
   };
 
   const handleConfirm = () => {
+    // Validate required modifiers
+    const newErrors = new Set<string>();
+    item.modificadores.forEach(mod => {
+      if (mod.obligatorio && mod.tipo !== 'textarea') {
+        const sel = selecciones[mod.id];
+        if (!sel || (Array.isArray(sel) && sel.length === 0)) {
+          newErrors.add(mod.id);
+        }
+      }
+    });
+    if (newErrors.size > 0) {
+      setErrors(newErrors);
+      return; // Don't confirm
+    }
+    setErrors(new Set());
+
     const mods: ModificadorSeleccionado[] = [];
     item.modificadores.forEach(mod => {
       const sel = selecciones[mod.id];
@@ -73,8 +90,6 @@ export function ItemModal({ item, onConfirm, onClose }: ItemModalProps) {
     });
     onConfirm(mods, nota);
   };
-
-  const stepperLabels = ['Ración simple', 'Ración doble', 'Ración triple'];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -111,8 +126,10 @@ export function ItemModal({ item, onConfirm, onClose }: ItemModalProps) {
         {/* Contenido scrollable */}
         <div className="overflow-y-auto flex-1 p-5 space-y-7">
           {item.modificadores.map(mod => (
-            <section key={mod.id}>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-2">
+            <section key={mod.id} className={errors.has(mod.id) ? 'border-l-2 border-red-400 pl-2' : ''}>
+              <h3 className={`text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2 ${
+                errors.has(mod.id) ? 'text-red-500' : 'text-slate-500'
+              }`}>
                 <span className="text-[#07d5a1]">■</span>
                 {mod.nombre}
                 {mod.obligatorio && <span className="text-red-400 text-xs">(obligatorio)</span>}
@@ -179,7 +196,7 @@ export function ItemModal({ item, onConfirm, onClose }: ItemModalProps) {
                       className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-lg font-bold hover:bg-[#07d5a1] hover:text-white hover:border-[#07d5a1] transition-all"
                     >−</button>
                     <span className="text-sm font-bold min-w-[80px] text-center text-slate-800">
-                      {stepperLabels[(selecciones[mod.id] as number) ?? 0] ?? 'Ración simple'}
+                      {mod.opciones[(selecciones[mod.id] as number) ?? 0]?.label ?? mod.opciones[0]?.label ?? '—'}
                     </span>
                     <button
                       onClick={() => handleStepper(mod.id, 1, mod.maxStepper ?? 3)}
