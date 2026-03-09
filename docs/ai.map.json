@@ -1,32 +1,47 @@
 {
-    "$schema": "dajarony-ai-native-v1",
-    "project": {
-        "name": "Dajarony Frontend",
-        "architecture": "Feature-Driven + SUME Blocks"
+  "$schema": "dajarony-ai-native-v1",
+  "project": {
+    "name": "Comandero Digital",
+    "architecture": "Feature-Driven + SUME Blocks (Dajarony V1)",
+    "phase": "Fase 1 — UI Mock completa"
+  },
+  "core_infrastructure": {
+    "api": "src/core/api/apiClient.ts",
+    "logger": "src/core/logger/logger.ts",
+    "error_handler": "src/core/errors/errorHandler.ts"
+  },
+  "shared": {
+    "BottomNav": "src/shared/components/BottomNav.tsx"
+  },
+  "router": "src/app/router.tsx",
+  "features": [
+    {
+      "name": "tables",
+      "path": "src/features/tables",
+      "manifest": "src/features/tables/tables.manifest.md",
+      "route": "/mesas",
+      "state": "src/features/tables/state/tablesStore.ts"
     },
-    "core_infrastructure": {
-        "api": "src/core/api/apiClient.ts",
-        "logger": "src/core/logger/logger.ts",
-        "error_handler": "src/core/errors/errorHandler.ts"
+    {
+      "name": "order",
+      "path": "src/features/order",
+      "manifest": "src/features/order/order.manifest.md",
+      "route": "/comanda/:mesaId",
+      "state": "src/features/order/state/orderStore.ts"
     },
-    "features": [
-        {
-            "name": "auth",
-            "path": "src/features/auth",
-            "manifest": "src/features/auth/auth.manifest.md",
-            "state_management": {
-                "store": "src/features/auth/state/authStore.ts",
-                "type": "Zustand"
-            }
-        },
-        {
-            "name": "dashboard",
-            "path": "src/features/dashboard",
-            "manifest": "src/features/dashboard/dashboard.manifest.md",
-            "state_management": {
-                "store": "src/features/dashboard/state/dashboardStore.ts",
-                "type": "Zustand"
-            }
-        }
-    ]
+    {
+      "name": "checkout",
+      "path": "src/features/checkout",
+      "manifest": "src/features/checkout/checkout.manifest.md",
+      "route": "/cobro/:mesaId",
+      "state": "src/features/checkout/state/checkoutStore.ts"
+    },
+    {
+      "name": "menu-ingest",
+      "path": "src/features/menu-ingest",
+      "manifest": "src/features/menu-ingest/menu-ingest.manifest.md",
+      "route": "/admin/carta",
+      "state": "src/features/menu-ingest/state/menuIngestStore.ts"
+    }
+  ]
 }
