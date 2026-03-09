@@ -1,3 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #07d5a1;
+  --color-accent: #F04770;
+  --color-bg-app: #f5f8f8;
+  --color-dark-navy: #073A4B;
+  --font-display: "Manrope", system-ui, sans-serif;
+}
+
 :root {
   /* Color Palette - Vibrant Light Theme */
   --color-primary: #F04770; /* Watermelon Red - CTAs */
