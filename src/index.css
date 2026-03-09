@@ -1,0 +1,77 @@
+:root {
+  /* Color Palette - Vibrant Light Theme */
+  --color-primary: #F04770; /* Watermelon Red - CTAs */
+  --color-secondary: #06D7A0; /* Mint Green - Success/Free */
+  --color-tertiary: #108AB1; /* Medium Blue - Accents */
+  --color-dark: #073A4B; /* Navy Blue - Occupied/Contrast */
+  --color-warning: #FFD167; /* Yellow */
+  --color-orange: #F78C6A; /* Orange */
+  
+  /* Backgrounds & Surfaces */
+  --color-bg: #F8F9FA; /* Very light grey for main app background */
+  --color-surface: #FFFFFF; /* Pure white for cards/modals */
+  --color-border: #E5E7EB; /* Subtle borders */
+
+  /* Text Colors */
+  --text-main: #1F2937; /* Very dark grey for optimal readability */
+  --text-muted: #6B7280; /* Grey for secondary text */
+  --text-inverse: #FFFFFF; /* White for text on dark backgrounds */
+
+  /* Typography */
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: var(--text-main);
+  background-color: var(--color-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.8em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Base button styles */
+button.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+button.btn-primary:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+button.btn-secondary {
+  background-color: var(--color-secondary);
+  color: var(--text-inverse);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-dark);
+  margin-bottom: 0.5em;
+}

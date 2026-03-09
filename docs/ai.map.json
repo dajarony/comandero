@@ -1,0 +1,32 @@
+{
+    "$schema": "dajarony-ai-native-v1",
+    "project": {
+        "name": "Dajarony Frontend",
+        "architecture": "Feature-Driven + SUME Blocks"
+    },
+    "core_infrastructure": {
+        "api": "src/core/api/apiClient.ts",
+        "logger": "src/core/logger/logger.ts",
+        "error_handler": "src/core/errors/errorHandler.ts"
+    },
+    "features": [
+        {
+            "name": "auth",
+            "path": "src/features/auth",
+            "manifest": "src/features/auth/auth.manifest.md",
+            "state_management": {
+                "store": "src/features/auth/state/authStore.ts",
+                "type": "Zustand"
+            }
+        },
+        {
+            "name": "dashboard",
+            "path": "src/features/dashboard",
+            "manifest": "src/features/dashboard/dashboard.manifest.md",
+            "state_management": {
+                "store": "src/features/dashboard/state/dashboardStore.ts",
+                "type": "Zustand"
+            }
+        }
+    ]
+}
