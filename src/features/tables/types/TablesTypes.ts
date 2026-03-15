@@ -1,11 +1,17 @@
+/**
+ * Types de Mesas — Matching backend contracts
+ */
+
 export type MesaEstado = 'LIBRE' | 'OCUPADA' | 'PENDIENTE_COBRO';
 
 export interface Mesa {
-  id: string;
+  id: number;
+  numero: string;
   estado: MesaEstado;
-  totalCuenta?: number;
-  horaApertura?: string;
-  comensales?: number;
+  comensales: number | null;
+  hora_apertura: string | null;
+  nota?: string | null;
+  total_cuenta: number;
 }
 
 export type FiltroMesa = 'TODAS' | 'LIBRES' | 'OCUPADAS' | 'PENDIENTE_COBRO';

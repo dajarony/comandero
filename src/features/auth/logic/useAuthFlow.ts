@@ -1,44 +1,35 @@
-import { handleError } from '@/core/errors/errorHandler';
-// import { authApi } from '../api/authApi';
-// import { useAuthStore } from '../state/authStore';
-import { useState } from 'react';
-
 /**
- * SUME DOCBLOCK
- * Nombre: Auth Flow
- * Tipo: Logic Block
- *
- * Entradas:
- * - [Definir]
- *
- * Acciones:
- * - [Definir]
- *
- * Salidas:
- * - success: boolean
- *
- * Errores:
- * - AUTH_FAILED
+ * useAuthFlow — Lógica de autenticación
  */
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authApi } from '../api/authApi';
+import { useAuthStore } from '../state/authStore';
+
 export function useAuthFlow() {
-  // S - Setup
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setSession } = useAuthStore();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // U - Use
-  const executeFeature = async (_params?: unknown) => {
-    setIsLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      // M - Manage
-
-      return { success: true };
-    } catch (error) {
-      // E - Error
-      handleError(error, 'AUTH_FAILED');
-      return { success: false, message: (error as Error).message };
+      const resp = await authApi.login({ email, password });
+      setSession(resp.access_token, resp.usuario);
+      navigate('/mesas', { replace: true });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error de conexión';
+      setError(msg);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  return { executeFeature, isLoading };
+  return { email, setEmail, password, setPassword, error, loading, handleLogin };
 }

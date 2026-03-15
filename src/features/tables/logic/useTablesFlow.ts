@@ -1,35 +1,57 @@
 /**
- * SUME DOCBLOCK
- * Nombre: Tables Flow
- * Tipo: Logic Block
- *
+ * Tables Flow — Carga mesas reales del backend
+ * 
  * Entradas: filtro de mesa, búsqueda por número
- * Acciones: filtra mesas, navega a comanda o cobro según estado
- * Salidas: mesas filtradas, handler de tap
- * Errores: TABLES_NAVIGATE_FAILED
- * Dependencias: tablesStore, react-router-dom
+ * Acciones: fetch real, filtra mesas, navega según estado
+ * Salidas: mesas filtradas, conteos, handler de tap
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTablesStore } from '../state/tablesStore';
-import type { FiltroMesa, Mesa } from '../types/TablesTypes';
-import { handleError } from '@/core/errors/errorHandler';
+import { tablesApi } from '../api/tablesApi';
+import type { Mesa } from '../types/TablesTypes';
 
 export function useTablesFlow() {
-  // S — Setup
-  const [filtro, setFiltro] = useState<FiltroMesa>('TODAS');
   const [busqueda, setBusqueda] = useState('');
   const navigate = useNavigate();
-  const mesas = useTablesStore(s => s.mesas);
 
-  // M — Manage (filtrado)
+  const mesas = useTablesStore(s => s.mesas);
+  const loading = useTablesStore(s => s.loading);
+  const error = useTablesStore(s => s.error);
+  // filtro y setFiltro vienen del store — estado único, sin duplicado local
+  const filtro = useTablesStore(s => s.filtro);
+  const setFiltro = useTablesStore(s => s.setFiltro);
+  const setMesas = useTablesStore(s => s.setMesas);
+  const setLoading = useTablesStore(s => s.setLoading);
+  const setError = useTablesStore(s => s.setError);
+
+  // Cargar mesas reales del backend al montar
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await tablesApi.fetchMesas();
+        if (mounted) setMesas(data);
+      } catch (err) {
+        if (mounted) setError(err instanceof Error ? err.message : 'Error cargando mesas');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [setMesas, setLoading, setError]);
+
+  // Filtrado
   const mesasFiltradas = mesas.filter(m => {
     const coincideFiltro =
       filtro === 'TODAS' ||
       (filtro === 'LIBRES' && m.estado === 'LIBRE') ||
       (filtro === 'OCUPADAS' && m.estado === 'OCUPADA') ||
       (filtro === 'PENDIENTE_COBRO' && m.estado === 'PENDIENTE_COBRO');
-    const coincideBusqueda = busqueda === '' || m.id.includes(busqueda);
+    const coincideBusqueda = busqueda === '' || m.numero.includes(busqueda);
     return coincideFiltro && coincideBusqueda;
   });
 
@@ -39,26 +61,16 @@ export function useTablesFlow() {
     pendiente: mesas.filter(m => m.estado === 'PENDIENTE_COBRO').length,
   };
 
-  // U — Use (acción principal)
   const handleTapMesa = (mesa: Mesa) => {
-    try {
-      if (mesa.estado === 'PENDIENTE_COBRO') {
-        navigate(`/cobro/${mesa.id}`);
-      } else {
-        navigate(`/comanda/${mesa.id}`);
-      }
-    } catch (error) {
-      handleError(error, 'TABLES_NAVIGATE_FAILED');
+    if (mesa.estado === 'PENDIENTE_COBRO') {
+      navigate(`/cobro/${mesa.id}`);
+    } else {
+      navigate(`/comanda/${mesa.id}`);
     }
   };
 
   return {
-    mesasFiltradas,
-    conteos,
-    filtro,
-    setFiltro,
-    busqueda,
-    setBusqueda,
-    handleTapMesa,
+    mesasFiltradas, conteos, filtro, setFiltro,
+    busqueda, setBusqueda, handleTapMesa, loading, error,
   };
 }

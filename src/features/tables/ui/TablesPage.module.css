@@ -1,154 +1,235 @@
+/* ═══ TablesPage — Mobile-First ═══ */
+
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--color-bg);
-  padding: 16px 16px 160px 16px;
+  padding: 0 16px 120px;
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
 }
 
+/* ── Header ── */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-top: 8px;
+  padding: 16px 0 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-bg);
 }
 
 .logoArea {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logoIcon {
-  background-color: #D1FAE5;
-  color: var(--color-secondary);
-  font-size: 1.5rem;
-  padding: 8px;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #06D7A0, #07b589);
+  color: white;
+  font-size: 1.4rem;
+  padding: 10px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(6, 215, 160, 0.3);
 }
 
 .brandName {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1.2rem;
+  font-weight: 800;
   margin: 0;
-  color: var(--text-main);
+  color: var(--color-dark);
+  letter-spacing: -0.02em;
 }
 
 .avatar {
-  background-color: #E5E7EB;
-  color: #4B5563;
-  width: 40px;
-  height: 40px;
+  background: linear-gradient(135deg, #e0e5ec, #cdd3dc);
+  color: var(--color-dark);
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* ── Controles ── */
 .controls {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .searchBar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background-color: var(--color-surface);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 12px 16px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 12px;
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.2s;
+}
+
+.searchBar:focus-within {
+  border-color: var(--color-secondary);
 }
 
 .searchBar input {
   border: none;
   outline: none;
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-main);
   background: transparent;
+  font-weight: 500;
 }
 
-.searchBar input::placeholder { color: #9CA3AF; }
+.searchBar input::placeholder {
+  color: #b0b8c4;
+}
 
 .filters {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-.filters::-webkit-scrollbar { display: none; }
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
 
 .pill {
   background-color: var(--color-surface);
   color: var(--text-muted);
-  border-radius: 20px;
-  padding: 8px 14px;
+  border-radius: 24px;
+  padding: 10px 16px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  border: 1px solid transparent;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1.5px solid var(--color-border);
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .pillActive {
-  background-color: var(--color-secondary);
+  background: linear-gradient(135deg, #06D7A0, #07b589);
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(6,215,160,0.3);
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(6, 215, 160, 0.3);
 }
 
+/* ── Mesa Grid — 2 cols mobile ── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
+@media (min-width: 600px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Mesa Card ── */
 .card {
-  border-radius: 16px;
-  padding: 20px 12px;
+  border-radius: 18px;
+  padding: 22px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-  transition: transform 0.1s, opacity 0.1s;
-  min-height: 100px;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-height: 110px;
   cursor: pointer;
   border: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.card:active { transform: scale(0.95); opacity: 0.9; }
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.08));
+  pointer-events: none;
+}
 
-.libre { background-color: var(--color-secondary); color: white; }
-.ocupada { background-color: var(--color-dark); color: white; }
-.pendiente { background-color: var(--color-primary); color: white; }
+.card:active {
+  transform: scale(0.93);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.libre {
+  background: linear-gradient(145deg, #06D7A0, #04c490);
+  color: white;
+}
+
+.ocupada {
+  background: linear-gradient(145deg, #073A4B, #0a5068);
+  color: white;
+}
+
+.pendiente {
+  background: linear-gradient(145deg, #F04770, #e83560);
+  color: white;
+}
 
 .cardNum {
-  font-size: 1.75rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 900;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .cardStatus {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  opacity: 0.85;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
 }
 
 .cardTotal {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   margin-top: 4px;
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 10px;
+  border-radius: 12px;
 }
 
 .cardHora {
   font-size: 0.7rem;
-  opacity: 0.7;
+  opacity: 0.75;
+  position: relative;
+  z-index: 1;
 }

@@ -8,9 +8,18 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-feature": "node scripts/generate-feature.js"
+    "generate-feature": "node scripts/generate-feature.js",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:open": "npx cap open android",
+    "cap:run": "npx cap run android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/haptics": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.1",
     "@tailwindcss/vite": "^4.2.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

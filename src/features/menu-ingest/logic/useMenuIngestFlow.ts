@@ -4,7 +4,7 @@
  * Tipo: Logic Block
  *
  * Entradas: archivo CSV (drag & drop o file input)
- * Acciones: parsea CSV, categoriza items (mock IA), muestra preview
+ * Acciones: parsea CSV local para preview, sube al backend para guardar
  * Salidas: items importados, estado del proceso, handlers
  * Errores: MENU_INGEST_PARSE_FAILED, MENU_INGEST_SAVE_FAILED
  * Dependencias: menuIngestStore, menuIngestApi
@@ -16,12 +16,13 @@ import { handleError } from '@/core/errors/errorHandler';
 
 export function useMenuIngestFlow() {
   // S — Setup
-  const { items, estado, setItems, setEstado, clear } = useMenuIngestStore();
+  const { items, estado, csvFile, setItems, setEstado, setCsvFile, clear } = useMenuIngestStore();
 
   // U — Use
   const handleArchivoCSV = async (archivo: File) => {
     try {
       setEstado('PROCESANDO');
+      setCsvFile(archivo);
       const texto = await archivo.text();
       const itemsImportados = await menuIngestApi.procesarCSV(texto);
       setItems(itemsImportados);
@@ -33,9 +34,10 @@ export function useMenuIngestFlow() {
   };
 
   const handleGuardar = async () => {
+    if (!csvFile) return;
     try {
       setEstado('PROCESANDO');
-      await menuIngestApi.guardarMenu(items);
+      await menuIngestApi.guardarMenu(csvFile);
       setEstado('GUARDADO');
     } catch (error) {
       handleError(error, 'MENU_INGEST_SAVE_FAILED');
@@ -51,8 +53,6 @@ export function useMenuIngestFlow() {
       handleArchivoCSV(archivo);
     }
   };
-
-  // E — handled in each handler above
 
   return { items, estado, handleArchivoCSV, handleGuardar, handleDrop, clear };
 }

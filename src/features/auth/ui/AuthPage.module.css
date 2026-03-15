@@ -1,0 +1,198 @@
+/* ═══ Login — Mobile-First ═══ */
+
+.container {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: linear-gradient(145deg, #073A4B 0%, #108AB1 45%, #06D7A0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* ── Logo ── */
+.logoArea {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.logoIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    border-radius: 22px;
+    margin-bottom: 12px;
+    font-size: 2.8rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.logoTitle {
+    font-size: 2rem;
+    font-weight: 900;
+    color: white;
+    margin: 0;
+    letter-spacing: -0.03em;
+}
+
+.logoSubtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 4px 0 0;
+    font-weight: 500;
+}
+
+/* ── Card ── */
+.card {
+    background: var(--color-surface);
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-dark);
+    text-align: center;
+    margin: 0 0 4px;
+}
+
+.cardSubtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0 0 20px;
+}
+
+/* ── Error ── */
+.error {
+    background: #fef2f2;
+    border: 1.5px solid #fecaca;
+    color: #dc2626;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* ── Fields ── */
+.fieldGroup {
+    margin-bottom: 16px;
+}
+
+.label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.input:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 4px rgba(6, 215, 160, 0.12);
+}
+
+.input::placeholder {
+    color: #c8cfd8;
+    font-weight: 500;
+}
+
+/* ── Password toggle ── */
+.passwordWrap {
+    position: relative;
+}
+
+.eyeBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Submit ── */
+.submitBtn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #F04770, #F78C6A);
+    color: white;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    box-shadow: 0 8px 24px rgba(240, 71, 112, 0.3);
+    transition: transform 0.12s, box-shadow 0.12s;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.submitBtn:active {
+    transform: scale(0.97);
+}
+
+.submitBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submitContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Hint ── */
+.hint {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin-top: 16px;
+}

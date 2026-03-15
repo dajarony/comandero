@@ -6,7 +6,7 @@ import styles from './TablesPage.module.css';
 export function TablesPage() {
   const {
     mesasFiltradas, conteos, filtro, setFiltro,
-    busqueda, setBusqueda, handleTapMesa,
+    busqueda, setBusqueda, handleTapMesa, loading, error,
   } = useTablesFlow();
 
   return (
@@ -47,11 +47,28 @@ export function TablesPage() {
         </div>
       </section>
 
-      <section className={styles.grid}>
-        {mesasFiltradas.map(mesa => (
-          <MesaCard key={mesa.id} mesa={mesa} onTap={handleTapMesa} />
-        ))}
-      </section>
+      {/* Loading */}
+      {loading && (
+        <div className={styles.grid} style={{ justifyContent: 'center', padding: '3rem' }}>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>⏳ Cargando mesas...</p>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className={styles.grid} style={{ justifyContent: 'center', padding: '3rem' }}>
+          <p style={{ fontSize: '1rem', color: 'var(--color-primary)' }}>❌ {error}</p>
+        </div>
+      )}
+
+      {/* Mesas Grid */}
+      {!loading && !error && (
+        <section className={styles.grid}>
+          {mesasFiltradas.map(mesa => (
+            <MesaCard key={mesa.id} mesa={mesa} onTap={handleTapMesa} />
+          ))}
+        </section>
+      )}
 
       <BottomNav />
     </div>
@@ -73,13 +90,13 @@ function MesaCard({ mesa, onTap }: { mesa: Mesa; onTap: (m: Mesa) => void }) {
 
   return (
     <button className={`${styles.card} ${estadoClass}`} onClick={() => onTap(mesa)}>
-      <span className={styles.cardNum}>{mesa.id}</span>
+      <span className={styles.cardNum}>{mesa.numero}</span>
       <span className={styles.cardStatus}>{estadoLabel}</span>
-      {mesa.totalCuenta !== undefined && mesa.totalCuenta > 0 && (
-        <span className={styles.cardTotal}>{mesa.totalCuenta.toFixed(2)}€</span>
+      {mesa.total_cuenta > 0 && (
+        <span className={styles.cardTotal}>{mesa.total_cuenta.toFixed(2)}€</span>
       )}
-      {mesa.horaApertura && (
-        <span className={styles.cardHora}>{mesa.horaApertura}</span>
+      {mesa.hora_apertura && (
+        <span className={styles.cardHora}>{mesa.hora_apertura}</span>
       )}
     </button>
   );

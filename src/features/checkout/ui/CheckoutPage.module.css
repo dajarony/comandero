@@ -1,9 +1,11 @@
+/* CheckoutPage — Split billing por comanda */
+
 .container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-bg);
-  padding-bottom: 100px;
+  background: #f5f5f7;
+  padding-bottom: 140px;
 }
 
 .header {
@@ -11,7 +13,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background-color: var(--color-surface);
+  background: white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   position: sticky;
   top: 0;
@@ -20,121 +22,192 @@
 
 .backBtn {
   background: transparent;
-  color: var(--color-tertiary);
+  border: none;
+  color: #3b82f6;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 8px;
-  box-shadow: none;
+  cursor: pointer;
 }
 
 .title {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--color-dark);
+  color: #1a1a2e;
   margin: 0;
 }
 
+.loadingText {
+  text-align: center;
+  padding: 32px;
+  color: #888;
+}
+
+.errorBanner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+
+/* Empty state */
+.emptyBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 4rem 1rem;
+  flex: 1;
+}
+.emptyIcon { font-size: 3rem; }
+.emptyTitle { font-size: 1.1rem; font-weight: 700; color: #1a1a2e; margin: 0; }
+
+/* Sections */
 .section {
-  background: var(--color-surface);
-  margin: 12px 16px 0 16px;
+  background: white;
+  margin: 12px 16px 0;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .sectionTitle {
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #888;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin: 0 0 12px 0;
+  margin: 0;
 }
 
-.empty { color: var(--text-muted); font-size: 0.9rem; }
+.toggleAllBtn {
+  background: #f0f0f5;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #3b82f6;
+  cursor: pointer;
+}
 
-.lineaItem {
+/* Comanda Card */
+.comandaCard {
+  border: 2px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+.comandaCard:last-child { margin-bottom: 0; }
+.comandaCard:active { transform: scale(0.98); }
+
+.comandaCardSelected {
+  border-color: #22c55e;
+  background: #f0fdf4;
+  box-shadow: 0 2px 8px rgba(34,197,94,0.15);
+}
+
+.comandaTop {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 8px;
 }
 
-.itemEmoji { font-size: 1.2rem; }
-.itemNombre { flex: 1; font-size: 0.9rem; color: var(--text-main); }
-.itemQty { color: var(--text-muted); font-size: 0.85rem; }
-.itemSubtotal { font-weight: 700; font-size: 0.95rem; color: var(--color-dark); }
+.comandaCheck {
+  width: 22px;
+  height: 22px;
+  accent-color: #22c55e;
+  cursor: pointer;
+  flex-shrink: 0;
+}
 
-.totalRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 14px;
-  font-size: 1rem;
+.comandaLabel {
   font-weight: 700;
-  color: var(--text-main);
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  flex: 1;
 }
 
-.totalAmount {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: var(--color-dark);
-}
-
-/* Split Bill */
-.splitControls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-}
-
-.splitBtn {
-  background: var(--color-bg);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 1.5rem;
+.comandaEstado {
+  font-size: 0.7rem;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  color: var(--color-dark);
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #f0f0f5;
+  color: #555;
 }
 
-.splitInfo {
+/* Comanda items */
+.comandaItems {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.comandaLine {
+  display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #333;
 }
 
-.splitNum {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: var(--color-dark);
-  line-height: 1;
+.comandaLineName {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.splitLabel { font-size: 0.8rem; color: var(--text-muted); }
+.comandaLineQty {
+  font-weight: 800;
+  color: #1a1a2e;
+  background: #f5f5f7;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
 
-.cuotaBox {
+.comandaLinePrice {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.comandaSubtotal {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, var(--color-secondary), #04b887);
-  color: white;
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-top: 16px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
 }
 
-.cuotaLabel { font-size: 0.9rem; font-weight: 600; }
-.cuotaAmount { font-size: 1.4rem; font-weight: 900; }
+.comandaSubtotalAmount {
+  font-weight: 900;
+  color: #1a1a2e;
+  font-size: 1rem;
+}
 
-/* Métodos de pago */
+/* Método de pago */
 .metodosGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -148,42 +221,53 @@
   gap: 6px;
   padding: 14px 8px;
   border-radius: 12px;
-  background: var(--color-bg);
-  color: var(--text-muted);
+  background: #f5f5f7;
+  color: #888;
   font-size: 0.8rem;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .metodoEmoji { font-size: 1.6rem; }
+.metodoLabel { font-size: 0.75rem; }
 
 .metodoBtnActive {
   background: white;
-  color: var(--color-dark);
-  border-color: var(--color-secondary);
-  box-shadow: 0 4px 6px rgba(6,215,160,0.2);
+  color: #1a1a2e;
+  border-color: #22c55e;
+  box-shadow: 0 4px 6px rgba(34,197,94,0.2);
 }
 
-/* FAB */
+/* FAB Cobrar */
 .fabContainer {
   position: fixed;
   bottom: 16px;
   left: 16px;
   right: 16px;
+  text-align: center;
 }
 
 .cobrarBtn {
   width: 100%;
-  background: linear-gradient(135deg, var(--color-secondary), #04b887);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
+  border: none;
   border-radius: 30px;
   padding: 18px;
-  font-size: 1rem;
-  font-weight: 700;
-  box-shadow: 0 10px 15px -3px rgba(6,215,160,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(34,197,94,0.4);
+  transition: transform 0.15s;
+}
+.cobrarBtn:active { transform: scale(0.97); }
+.cobrarBtn:disabled { opacity: 0.5; }
+
+.partialNote {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 600;
 }

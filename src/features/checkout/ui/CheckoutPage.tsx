@@ -1,102 +1,75 @@
+/**
+ * @module CheckoutPage
+ * @description Cobro con selección de comandas — split billing por comanda
+ * SUME Docblock v2.0
+ */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCheckoutFlow } from '../logic/useCheckoutFlow';
-import type { MetodoPago } from '../types/CheckoutTypes';
+import { ComandasList, MetodoPagoSelector } from './CheckoutPage.helpers';
 import styles from './CheckoutPage.module.css';
 
 export function CheckoutPage() {
-  const { mesaId = '01' } = useParams<{ mesaId: string }>();
+  const { mesaId = '1' } = useParams<{ mesaId: string }>();
   const navigate = useNavigate();
-  const {
-    itemsResumen, total, numPersonas, setNumPersonas,
-    cuotaPorPersona, metodoPago, setMetodoPago, handleCobrar,
-  } = useCheckoutFlow(mesaId);
-
-  const metodos: { key: MetodoPago; emoji: string; label: string }[] = [
-    { key: 'EFECTIVO', emoji: '💵', label: 'Efectivo' },
-    { key: 'TARJETA', emoji: '💳', label: 'Tarjeta' },
-    { key: 'QR', emoji: '📱', label: 'QR/Bizum' },
-  ];
+  const flow = useCheckoutFlow(mesaId);
 
   return (
     <div className={styles.container}>
-      {/* Header */}
       <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate('/mesas')}>
-          ← Mesas
+        <button className={styles.backBtn} onClick={() => navigate('/comandas')}>
+          ← Comandas
         </button>
         <h2 className={styles.title}>Cobro · Mesa {mesaId}</h2>
         <div style={{ width: 60 }} />
       </header>
 
-      {/* Resumen de cuenta */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Resumen de cuenta</h3>
-        {itemsResumen.length === 0 ? (
-          <p className={styles.empty}>Sin items en la comanda</p>
-        ) : (
-          itemsResumen.map((item, i) => (
-            <div key={i} className={styles.lineaItem}>
-              <span className={styles.itemEmoji}>{item.emoji}</span>
-              <span className={styles.itemNombre}>{item.nombre}</span>
-              <span className={styles.itemQty}>×{item.cantidad}</span>
-              <span className={styles.itemSubtotal}>{item.subtotal.toFixed(2)}€</span>
-            </div>
-          ))
-        )}
-        <div className={styles.totalRow}>
-          <span>TOTAL</span>
-          <span className={styles.totalAmount}>{total.toFixed(2)}€</span>
-        </div>
-      </section>
+      {flow.loading && <p className={styles.loadingText}>Cargando cuenta...</p>}
 
-      {/* Split Bill */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Dividir cuenta</h3>
-        <div className={styles.splitControls}>
-          <button
-            className={styles.splitBtn}
-            onClick={() => setNumPersonas(Math.max(1, numPersonas - 1))}
-          >−</button>
-          <div className={styles.splitInfo}>
-            <span className={styles.splitNum}>{numPersonas}</span>
-            <span className={styles.splitLabel}>persona{numPersonas > 1 ? 's' : ''}</span>
-          </div>
-          <button
-            className={styles.splitBtn}
-            onClick={() => setNumPersonas(numPersonas + 1)}
-          >+</button>
-        </div>
-        {numPersonas > 1 && (
-          <div className={styles.cuotaBox}>
-            <span className={styles.cuotaLabel}>Cada persona paga</span>
-            <span className={styles.cuotaAmount}>{cuotaPorPersona.toFixed(2)}€</span>
-          </div>
-        )}
-      </section>
+      {flow.errorMsg && (
+        <div className={styles.errorBanner}>{flow.errorMsg}</div>
+      )}
 
-      {/* Método de pago */}
-      <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>Método de pago</h3>
-        <div className={styles.metodosGrid}>
-          {metodos.map(m => (
+      {!flow.loading && flow.pedidos.length === 0 && (
+        <div className={styles.emptyBox}>
+          <span className={styles.emptyIcon}>📭</span>
+          <p className={styles.emptyTitle}>No hay comandas activas</p>
+        </div>
+      )}
+
+      {!flow.loading && flow.pedidos.length > 0 && (
+        <>
+          <ComandasList
+            pedidos={flow.pedidos}
+            selected={flow.selected}
+            onToggle={flow.toggleSelect}
+            allSelected={flow.allSelected}
+            onSelectAll={flow.selectAll}
+            onSelectNone={flow.selectNone}
+          />
+
+          <MetodoPagoSelector
+            metodoPago={flow.metodoPago}
+            onChange={flow.setMetodoPago}
+          />
+
+          <div className={styles.fabContainer}>
             <button
-              key={m.key}
-              className={`${styles.metodoBtn} ${metodoPago === m.key ? styles.metodoBtnActive : ''}`}
-              onClick={() => setMetodoPago(m.key)}
+              className={styles.cobrarBtn}
+              onClick={flow.handleCobrar}
+              disabled={flow.cobrando || flow.selected.size === 0}
             >
-              <span className={styles.metodoEmoji}>{m.emoji}</span>
-              <span className={styles.metodoLabel}>{m.label}</span>
+              {flow.cobrando
+                ? '⏳ Procesando...'
+                : `💵 COBRAR ${flow.totalSelected.toFixed(2)}€`}
             </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Botón cobrar */}
-      <div className={styles.fabContainer}>
-        <button className={styles.cobrarBtn} onClick={handleCobrar}>
-          ✅ COBRAR {total.toFixed(2)}€ · {metodoPago}
-        </button>
-      </div>
+            {!flow.allSelected && flow.selected.size > 0 && (
+              <p className={styles.partialNote}>
+                Cobro parcial · La mesa seguirá abierta
+              </p>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

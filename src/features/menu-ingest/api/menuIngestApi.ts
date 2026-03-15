@@ -1,4 +1,9 @@
+/**
+ * Menu Ingest API — Preview local + guardado real en backend
+ */
 import type { ItemImportado } from '../types/MenuIngestTypes';
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const CATEGORIAS_KEYWORDS: Record<string, string[]> = {
   Bebidas: ['agua', 'café', 'cafe', 'té', 'te', 'zumo', 'refresco', 'cola', 'fanta', 'limon'],
@@ -30,6 +35,7 @@ function categorizarItem(nombre: string): { categoria: string; emoji: string } {
 }
 
 export const menuIngestApi = {
+  /** Preview local del CSV (no toca backend) */
   procesarCSV: async (csvText: string): Promise<ItemImportado[]> => {
     const lineas = csvText.trim().split('\n').slice(1);
     return lineas
@@ -44,5 +50,24 @@ export const menuIngestApi = {
       .filter(i => i.nombre.length > 0);
   },
 
-  guardarMenu: async (_items: ItemImportado[]) => Promise.resolve({ ok: true }),
+  /** Sube el CSV original al backend para ingesta real con IA */
+  guardarMenu: async (csvFile: File): Promise<{ items_guardados: number }> => {
+    const token = localStorage.getItem('comandero_token');
+    const formData = new FormData();
+    formData.append('archivo', csvFile);
+
+    const response = await fetch(`${BASE_URL}/menu/ingestar`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || 'Error al ingestar menu');
+    }
+
+    const json = await response.json();
+    return json.data;
+  },
 };

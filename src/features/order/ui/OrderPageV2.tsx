@@ -1,164 +1,123 @@
-// src/features/order/ui/OrderPageV2.tsx
+/**
+ * OrderPageV2 — Comandero con menús agrupados (Bebidas, Comida, Snacks)
+ * SUME Docblock v2.0 | Entradas: mesaId (URL) | Salidas: navigate ticket/mesas
+ * Navegación: Grupos → Categorías → Items (3 niveles)
+ */
 import { useParams } from 'react-router-dom';
-import { useOrderFlowV2 } from '../logic/useOrderFlowV2';
-import { ItemModal } from './ItemModal';
-import { MENU_MOCK_V2 } from '../api/menuMockV2';
+import { CarritoSheet, PedirCuentaBtn } from './OrderPageV2.helpers';
+import { useOrderPageState, FAV_CAT } from './OrderPageV2.hooks';
+import styles from './OrderPageV2.module.css';
 
 export function OrderPageV2() {
-  const { mesaId = '01' } = useParams<{ mesaId: string }>();
-  const {
-    nivel, bloques, bloqueActivo, subcatActiva,
-    itemsSubcat, carrito, total, totalItems,
-    carritoVisible, setCarritoVisible,
-    itemModal, setItemModal, handleSelectBloque, handleSelectSubcat,
-    handleBack, handleTapItem, handleConfirmModal, handleMarchar,
-  } = useOrderFlowV2(mesaId);
+  const { mesaId = '1' } = useParams<{ mesaId: string }>();
+  const s = useOrderPageState(mesaId);
+
+  // Nivel actual: 'grupos' | 'categorias' | 'items'
+  const nivel = s.catActiva ? 'items' : s.grupoActivo ? 'categorias' : 'grupos';
 
   return (
-    <div className="min-h-screen bg-[#f5f8f8] font-[Manrope,system-ui,sans-serif] flex flex-col">
-
-      {/* HEADER */}
-      <header className="sticky top-0 z-10 bg-white border-b border-slate-200 shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-1 text-[#07d5a1] font-semibold text-sm"
-          >
-            ← {nivel === 'bloques' ? 'Mesas' : nivel === 'subcategorias' ? 'Menú' : bloqueActivo?.nombre}
-          </button>
-          <div className="text-center">
-            <p className="font-extrabold text-slate-800 text-sm">Mesa {mesaId}</p>
-            <p className="text-xs text-slate-400">
-              {nivel === 'bloques' ? 'Selecciona categoría' : nivel === 'subcategorias' ? bloqueActivo?.nombre : subcatActiva?.nombre}
-            </p>
-          </div>
-          <button
-            onClick={() => setCarritoVisible(!carritoVisible)}
-            className="relative w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xl"
-          >
-            🛒
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#F04770] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {totalItems}
-              </span>
-            )}
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <button className={styles.backBtn} onClick={s.handleBack}>
+          ← {s.backLabel}
+        </button>
+        {s.busquedaActiva
+          ? <input autoFocus className={styles.searchInput} placeholder="Buscar en el menú..."
+              value={s.busqueda} onChange={e => s.setBusqueda(e.target.value)} />
+          : <div className={styles.headerCenter}>
+              <p className={styles.mesaTitle}>Mesa {mesaId}</p>
+              <p className={styles.mesaSubtitle}>{s.subtitulo}</p>
+            </div>
+        }
+        <div className={styles.headerActions}>
+          <button className={styles.searchBtn} onClick={() => s.setBusquedaActiva(v => !v)}>🔍</button>
+          <button className={styles.cartBtn} onClick={() => s.setCarritoVisible(!s.carritoVisible)}>
+            🛒{s.totalItems > 0 && <span className={styles.cartBadge}>{s.totalItems}</span>}
           </button>
         </div>
       </header>
 
-      {/* NIVEL 1 — BLOQUES */}
-      {nivel === 'bloques' && (
-        <div className="p-4 grid grid-cols-2 gap-4 flex-1">
-          {bloques.map(bloque => (
-            <button
-              key={bloque.id}
-              onClick={() => handleSelectBloque(bloque)}
-              className={`${bloque.colorClass} border-2 rounded-2xl p-6 flex flex-col items-center gap-3 active:scale-95 transition-transform shadow-sm`}
+      {(s.loadingCats || s.loadingItems) && <div className={styles.loading}>⏳ Cargando...</div>}
+
+      {s.errorMenu && (
+        <p style={{ textAlign: 'center', color: '#ef4444', padding: '1rem', fontWeight: 600 }}>{s.errorMenu}</p>
+      )}
+
+      {/* ═══ NIVEL 0: Grupos de menú (Bebidas, Comida, Snacks) ═══ */}
+      {!s.loadingCats && !s.busqueda && nivel === 'grupos' && (
+        <div className={styles.catGrid}>
+          <button className={`${styles.catCard} ${styles.catCardFav}`} onClick={() => s.setCatActiva(FAV_CAT)}>
+            <span className={styles.catCardEmoji}>⭐</span>
+            <span className={styles.catCardName}>Favoritos</span>
+          </button>
+          {s.gruposConConteo.map(grupo => (
+            <button key={grupo.id}
+              className={styles.catCard}
+              style={{ background: grupo.color }}
+              onClick={() => grupo.count > 0 ? s.setGrupoActivo(grupo) : undefined}
             >
-              <span className="text-5xl">{bloque.emoji}</span>
-              <span className="font-extrabold text-slate-800 text-base">{bloque.nombre}</span>
-              <span className="text-xs text-slate-500">{bloque.subcategorias.length} categorías</span>
+              <span className={styles.catCardEmoji}>{grupo.emoji}</span>
+              <span className={styles.catCardName}>{grupo.nombre}</span>
+              {grupo.count === 0 && <span className={styles.catCardBadge}>Próximamente</span>}
+              {grupo.count > 0 && <span className={styles.catCardCount}>{grupo.count} categorías</span>}
             </button>
           ))}
         </div>
       )}
 
-      {/* NIVEL 2 — SUB-CATEGORÍAS */}
-      {nivel === 'subcategorias' && bloqueActivo && (
-        <div className="p-4 grid grid-cols-2 gap-4 flex-1">
-          {bloqueActivo.subcategorias.map(subcat => {
-            const realCount = MENU_MOCK_V2.filter(i => i.subcategoria === subcat.id).length;
-            return (
-              <button
-                key={subcat.id}
-                onClick={() => handleSelectSubcat(subcat)}
-                className="bg-white border-2 border-slate-200 rounded-2xl p-5 flex flex-col items-center gap-3 active:scale-95 transition-transform shadow-sm hover:border-[#07d5a1]"
-              >
-                <span className="text-4xl">{subcat.emoji}</span>
-                <span className="font-bold text-slate-800 text-sm text-center">{subcat.nombre}</span>
-                <span className="text-xs text-[#07d5a1] font-semibold">{realCount} items</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* NIVEL 3 — ITEMS */}
-      {nivel === 'items' && (
-        <div className="p-4 flex-1 space-y-3">
-          {itemsSubcat.map(item => (
-            <button
-              key={item.id}
-              onClick={() => handleTapItem(item)}
-              className="w-full bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex items-center gap-4 active:scale-[0.99] transition-transform text-left"
-            >
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-3xl shrink-0 overflow-hidden">
-                {item.foto
-                  ? <img src={item.foto} alt={item.nombre} className="w-full h-full object-cover rounded-xl" />
-                  : item.emoji}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-slate-800 text-sm">{item.nombre}</p>
-                <p className="text-xs text-slate-500 truncate">{item.descripcion}</p>
-                {item.modificadores.length > 0 && (
-                  <p className="text-xs text-[#07d5a1] mt-1">✦ Personalizable</p>
-                )}
-              </div>
-              <div className="shrink-0 text-right">
-                <p className="font-extrabold text-slate-800">{item.precio.toFixed(2)}€</p>
-                <div className="mt-1 w-8 h-8 rounded-full bg-[#07d5a1] flex items-center justify-center text-white font-bold text-lg ml-auto">+</div>
-              </div>
+      {/* ═══ NIVEL 1: Categorías dentro del grupo ═══ */}
+      {!s.loadingCats && !s.busqueda && nivel === 'categorias' && (
+        <div className={styles.catGrid}>
+          {s.categoriasDelGrupo.map(cat => (
+            <button key={cat.id} className={styles.catCard} onClick={() => s.setCatActiva(cat)}>
+              <span className={styles.catCardEmoji}>{cat.emoji}</span>
+              <span className={styles.catCardName}>{cat.nombre}</span>
             </button>
           ))}
         </div>
       )}
 
-      {/* MODAL PERSONALIZACIÓN */}
-      {itemModal && (
-        <ItemModal
-          item={itemModal}
-          onConfirm={handleConfirmModal}
-          onClose={() => setItemModal(null)}
-        />
-      )}
-
-      {/* PANEL CARRITO */}
-      {carritoVisible && carrito.length > 0 && (
-        <div className="fixed inset-0 z-40 flex items-end">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setCarritoVisible(false)} />
-          <div className="relative w-full bg-white rounded-t-2xl p-5 max-h-[60vh] overflow-y-auto shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-extrabold text-slate-800 text-lg">Comanda</h3>
-              <button onClick={() => setCarritoVisible(false)} className="text-slate-400 text-xl">✕</button>
-            </div>
-            <div className="space-y-3">
-              {carrito.map((linea, i) => (
-                <div key={i} className="flex items-start gap-3 pb-3 border-b border-slate-100">
-                  <span className="text-2xl">{linea.item.emoji}</span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm text-slate-800">{linea.item.nombre}</p>
-                    {linea.nota && <p className="text-xs text-slate-400 italic">{linea.nota}</p>}
-                  </div>
-                  <span className="font-bold text-slate-800">{linea.precioUnitario.toFixed(2)}€</span>
+      {/* ═══ NIVEL 2: Items de la categoría / Búsqueda / Favoritos ═══ */}
+      {(s.busqueda || nivel === 'items') && (
+        <div className={styles.itemsList}>
+          {s.itemsMostrar.map(item => (
+            <div key={item.id} className={styles.itemCard} onClick={() => s.addToCart(item)} role="button" tabIndex={0}>
+              <div className={styles.itemEmoji}>{item.emoji}</div>
+              <div className={styles.itemInfo}>
+                <p className={styles.itemNombre}>{item.nombre}</p>
+                {item.descripcion && <p className={styles.itemDesc}>{item.descripcion}</p>}
+              </div>
+              <div className={styles.itemRight}>
+                <span className={styles.itemPrecio}>{item.precio.toFixed(2)}€</span>
+                <div className={styles.itemRightBtns}>
+                  <button className={styles.favBtn} onClick={e => s.toggleFav(e, item.id)}>
+                    {s.favoritos.includes(item.id) ? '⭐' : '☆'}
+                  </button>
+                  <span className={styles.addBtn}>+</span>
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="flex justify-between items-center pt-4 font-extrabold text-lg text-slate-800">
-              <span>Total</span><span>{total.toFixed(2)}€</span>
-            </div>
-          </div>
+          ))}
+          {s.itemsMostrar.length === 0 && <p className={styles.emptyMsg}>No hay resultados</p>}
         </div>
       )}
 
-      {/* FAB MARCHAR */}
-      {carrito.length > 0 && !carritoVisible && (
-        <div className="fixed bottom-4 left-4 right-4 z-30">
-          <button
-            onClick={handleMarchar}
-            className="w-full py-4 rounded-2xl bg-[#F04770] text-white font-extrabold text-base shadow-xl active:scale-[0.98] transition-transform flex items-center justify-center gap-3"
-          >
-            🚀 MARCHAR PEDIDO
-            <span className="bg-white/20 px-3 py-1 rounded-full">{total.toFixed(2)}€</span>
+      {s.carrito.length === 0 && s.tienePedidosActivos && (
+        <PedirCuentaBtn onPedir={s.handlePedirCuenta} enviando={s.enviando} />
+      )}
+
+      {s.carritoVisible && s.carrito.length > 0 && (
+        <CarritoSheet carrito={s.carrito} total={s.total} onClose={() => s.setCarritoVisible(false)}
+          onAdd={s.addToCart} onRemove={s.removeFromCart} onUpdateNota={s.updateNota}
+          onRepetirRonda={s.repetirRonda} tieneUltimaRonda={s.ultimaRonda.length > 0}
+          onMarchar={s.handleMarchar} enviando={s.enviando} />
+      )}
+
+      {s.carrito.length > 0 && !s.carritoVisible && (
+        <div className={styles.fabContainer}>
+          <button className={styles.marchBtn} onClick={s.handleMarchar} disabled={s.enviando}>
+            {s.enviando ? '⏳ Enviando...' : '📋 ENVIAR PEDIDO'}
+            <span className={styles.marchBtnTotal}>{s.total.toFixed(2)}€</span>
           </button>
         </div>
       )}
