@@ -77,13 +77,20 @@ export function TablesPage() {
       )}
 
       {/* Mesas Grid */}
-      {!loading && !error && (
+      {!loading && !error && mesasFiltradas.length === 0 && (
+        <div className={styles.emptyState}>
+          <span className={styles.emptyIcon}>🪑</span>
+          <p>No hay mesas con este filtro</p>
+        </div>
+      )}
+
+      {!loading && !error && mesasFiltradas.length > 0 && (
         <section className={styles.grid}>
           {mesasFiltradas.map(mesa => (
-            <MesaCard 
-              key={mesa.id} 
-              mesa={mesa} 
-              onTap={handleTapMesa} 
+            <MesaCard
+              key={mesa.id}
+              mesa={mesa}
+              onTap={handleTapMesa}
               onShowQR={(m) => setSelectedQR(m)}
             />
           ))}
