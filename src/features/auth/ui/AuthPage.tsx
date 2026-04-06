@@ -1,7 +1,13 @@
 /**
- * AuthPage — Login mobile-first con CSS modules
+ * @module AuthPage
+ * @description Página de login mobile-first con CSS modules
+ * SUME Docblock v2.0
+ * Entradas : Interacción del usuario (email, password, submit)
+ * Lógica   : Delega en useAuthFlow, renderiza formulario responsive
+ * Salidas  : JSX del formulario de login
  */
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthFlow } from '../logic/useAuthFlow';
 import styles from './AuthPage.module.css';
 
@@ -82,7 +88,9 @@ export function AuthPage() {
             </span>
           </button>
 
-          <p className={styles.hint}>Demo: admin@dajarony.com / admin1234</p>
+          <p className={styles.hint}>
+            ¿Restaurante nuevo? <Link to="/registro" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>Crear cuenta</Link>
+          </p>
         </form>
       </div>
     </div>

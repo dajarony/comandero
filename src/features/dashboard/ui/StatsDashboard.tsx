@@ -37,7 +37,7 @@ ChartJS.register(
 );
 
 export const StatsDashboard: React.FC = () => {
-  const { stats, periodo, setPeriodo, fetchStats, isLoading } = useStatsStore();
+  const { stats, periodo, setPeriodo, fetchStats, isLoading, error } = useStatsStore();
 
   useEffect(() => {
     fetchStats();
@@ -191,6 +191,13 @@ export const StatsDashboard: React.FC = () => {
             </div>
         </div>
       </section>
+
+      {error && (
+        <div className={styles.errorBanner}>
+          <span>❌ {error}</span>
+          <button className={styles.retryBtn} onClick={fetchStats}>Reintentar</button>
+        </div>
+      )}
 
       {isLoading && <div className={styles.overlay}><div className={styles.spinner}></div></div>}
       <BottomNav />
