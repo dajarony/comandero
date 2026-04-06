@@ -6,7 +6,7 @@
  */
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/state/authStore';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './BottomNav.module.css';
 
 function IconMesas() {
@@ -59,7 +59,7 @@ function IconIA() {
   );
 }
 
-const RUTAS_SIN_NAV = ['/comanda/', '/cobro/', '/ticket/', '/login', '/registro'];
+const RUTAS_SIN_NAV = ['/comanda/', '/cobro/', '/ticket/', '/login', '/registro', '/asistente'];
 
 const allTabs = [
   { path: '/mesas',         Icon: IconMesas,    label: 'Mesas',    roles: ['ADMIN', 'CAMARERO'] },
@@ -75,17 +75,25 @@ export function BottomNav() {
   const { usuario } = useAuthStore();
   const [oculta, setOculta] = useState(false);
   const lastY = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const onScroll = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      const y = window.scrollY;
+      if (y > lastY.current + 12)      setOculta(true);
+      else if (y < lastY.current - 8)  setOculta(false);
+      lastY.current = y;
+    }, 80);
+  }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (y > lastY.current + 8)      setOculta(true);
-      else if (y < lastY.current - 4) setOculta(false);
-      lastY.current = y;
-    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [onScroll]);
 
   const ocultarNav = RUTAS_SIN_NAV.some(r => location.pathname.startsWith(r));
   if (ocultarNav) return null;
