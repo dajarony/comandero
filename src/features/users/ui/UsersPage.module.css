@@ -1,0 +1,245 @@
+.container {
+  padding: 1.5rem 1.5rem 16px;
+  min-height: 100dvh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.titles h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0.25rem 0;
+}
+
+.titles p {
+  color: #8b949e;
+  font-size: 0.9rem;
+}
+
+.badge {
+  background: rgba(88, 166, 255, 0.1);
+  color: #58a6ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.addBtn {
+  background: linear-gradient(135deg, #238636, #2ea043);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.filterBtn {
+  background: #161b22;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filterBtn.active {
+  background: #238636;
+  border-color: #238636;
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: rgba(22, 27, 34, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  background: rgba(33, 38, 45, 0.8);
+  border-color: #58a6ff;
+}
+
+.card.inactive {
+  opacity: 0.6;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #1f6feb, #58a6ff);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.roleTag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.admin { background: rgba(210, 153, 34, 0.1); color: #d29922; }
+.camarero { background: rgba(35, 134, 54, 0.1); color: #3fb950; }
+.cocina { background: rgba(171, 125, 248, 0.1); color: #ab7df8; }
+
+.cardBody h3 {
+  font-size: 1.1rem;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+
+.cardBody p {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 1rem;
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #30363d;
+  padding-top: 1rem;
+}
+
+.editBtn, .deactivateBtn, .activateBtn {
+  flex: 1;
+  border: 1px solid #30363d;
+  background: transparent;
+  color: #c9d1d9;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.editBtn:hover {
+  background: #30363d;
+  color: #58a6ff;
+}
+
+.deactivateBtn:hover {
+  background: rgba(248, 81, 73, 0.1);
+  color: #f85149;
+  border-color: #f85149;
+}
+
+.activateBtn:hover {
+  background: rgba(35, 134, 54, 0.1);
+  color: #3fb950;
+  border-color: #3fb950;
+}
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.confirmBox {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 14px;
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+  color: #e6edf3;
+}
+
+.confirmBox p {
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.confirmYes {
+  background: #f85149;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmNo {
+  background: #30363d;
+  color: #c9d1d9;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.errorBanner {
+  background: rgba(248, 81, 73, 0.1);
+  color: #f85149;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 1rem;
+}
