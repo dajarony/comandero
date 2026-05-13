@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { orderApi } from '../api/orderApi';
 import type { CategoriaApi, MenuItemApi, LineaPedidoCreate } from '../api/orderApi';
 import { tablesApi } from '@/features/tables/api/tablesApi';
@@ -70,14 +71,15 @@ export function useOrderPageState(mesaId: string) {
   // Categorías filtradas por grupo activo
   const categoriasDelGrupo = useMemo(() => {
     if (!grupoActivo) return [];
-    return categorias.filter(c => grupoActivo.categorias.includes(c.nombre));
+    const lower = grupoActivo.categorias.map(n => n.toLowerCase());
+    return categorias.filter(c => lower.includes(c.nombre.toLowerCase()));
   }, [grupoActivo, categorias]);
 
   // Grupos con conteo de categorías disponibles
   const gruposConConteo = useMemo(() => {
     return MENU_GROUPS.map(g => ({
       ...g,
-      count: categorias.filter(c => g.categorias.includes(c.nombre)).length,
+      count: categorias.filter(c => g.categorias.map(n => n.toLowerCase()).includes(c.nombre.toLowerCase())).length,
     }));
   }, [categorias]);
 
@@ -90,13 +92,20 @@ export function useOrderPageState(mesaId: string) {
       ? todosItems.filter(i => favoritos.includes(i.id))
       : items.filter(i => i.disponible);
 
-  const addToCart = (item: MenuItemApi) =>
+  const addToCart = (item: MenuItemApi) => {
     setCarrito(prev => {
       const ex = prev.find(l => l.item.id === item.id);
       return ex
         ? prev.map(l => l.item.id === item.id ? { ...l, cantidad: l.cantidad + 1 } : l)
         : [...prev, { item, cantidad: 1, nota: '' }];
     });
+    toast.success(`Añadido: ${item.nombre}`, {
+      duration: 800,
+      position: 'bottom-center',
+      icon: '✅',
+      style: { borderRadius: '12px', fontSize: '14px', fontWeight: '600' }
+    });
+  };
 
   const removeFromCart = (id: number) =>
     setCarrito(prev => {
@@ -131,9 +140,10 @@ export function useOrderPageState(mesaId: string) {
       }
       localStorage.setItem(`ultima_ronda_${mesaId}`, JSON.stringify(carrito));
       setUltimaRonda(carrito);
+      toast.success('¡Pedido enviado a cocina!', { icon: '🔥' });
       navigate('/comandas', { replace: true });
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al enviar pedido');
+    } catch {
+      toast.error('No se pudo enviar el pedido. Se intentará reconectar.');
     } finally { setEnviando(false); }
   };
 
@@ -141,9 +151,10 @@ export function useOrderPageState(mesaId: string) {
     setEnviando(true);
     try {
       await tablesApi.cambiarEstado(Number(mesaId), 'PENDIENTE_COBRO');
+      toast.success('Cuenta solicitada.');
       navigate('/mesas');
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al pedir la cuenta');
+    } catch {
+      toast.error('Error al solicitar la cuenta.');
     } finally { setEnviando(false); }
   };
 

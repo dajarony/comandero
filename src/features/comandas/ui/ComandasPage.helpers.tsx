@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 /**
  * @module ComandasPage.helpers
  * @description Helpers y componentes auxiliares para ComandasPage
@@ -13,8 +15,8 @@ export function calcTiempo(horaApertura: string | null): string {
   if (!horaApertura) return '—';
   const [h, m] = horaApertura.split(':').map(Number);
   const ahora = new Date();
-  const mins = (ahora.getHours() * 60 + ahora.getMinutes()) - (h * 60 + m);
-  if (mins < 0) return '—';
+  let mins = (ahora.getHours() * 60 + ahora.getMinutes()) - (h * 60 + m);
+  if (mins < 0) mins += 1440; // cruce de medianoche
   if (mins < 60) return `${mins} min`;
   return `${Math.floor(mins / 60)}h ${mins % 60}m`;
 }

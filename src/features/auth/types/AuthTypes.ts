@@ -1,12 +1,14 @@
 /**
- * Tipos de autenticación — Coinciden con contratos del backend
+ * @module AuthTypes
+ * @description Tipos TypeScript para autenticación (contratos del backend)
+ * SUME Docblock v2.0
  */
 
 export interface UsuarioResponse {
   id: number;
   nombre: string;
   email: string;
-  rol: 'ADMIN' | 'CAMARERO';
+  rol: 'ADMIN' | 'CAMARERO' | 'COCINA';
   activo: boolean;
 }
 
@@ -17,6 +19,13 @@ export interface TokenResponse {
 }
 
 export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RegistroRestaurantePayload {
+  nombre_restaurante: string;
+  nombre_admin: string;
   email: string;
   password: string;
 }

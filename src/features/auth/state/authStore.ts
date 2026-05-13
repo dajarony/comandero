@@ -1,5 +1,10 @@
 /**
- * Auth Store — Zustand + localStorage para persistir sesión
+ * @module authStore
+ * @description Store Zustand de sesión con persistencia en localStorage
+ * SUME Docblock v2.0
+ * Entradas : token JWT + UsuarioResponse tras login
+ * Lógica   : Guarda/carga/limpia sesión en localStorage
+ * Salidas  : Estado reactivo { token, usuario, isAuthenticated }
  */
 import { create } from 'zustand';
 import type { UsuarioResponse } from '../types/AuthTypes';

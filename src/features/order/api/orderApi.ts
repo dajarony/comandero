@@ -1,5 +1,10 @@
 /**
- * Order API — Conecta con backend real para menú y pedidos
+ * @module orderApi
+ * @description Capa API de menú y pedidos contra backend FastAPI
+ * SUME Docblock v2.0
+ * Entradas : IDs de mesa/pedido/categoría, payloads de creación
+ * Lógica   : CRUD menú + pedidos, marchar, cerrar, retener, ticket
+ * Salidas  : CategoriaApi[] | MenuItemApi[] | PedidoApi | string (ticket)
  */
 import { apiClient } from '@/core/api/apiClient';
 
@@ -40,10 +45,12 @@ export interface PedidoCreate {
 export interface PedidoApi {
   id: number;
   mesa_id: number;
+  mesa_numero?: string | null;
   usuario_id: number;
   estado: string;
   destino?: string | null;
   total: number;
+  propina: number;
   created_at: string;
   lineas: Array<{
     id: number;
@@ -75,9 +82,9 @@ export const orderApi = {
   marcharPedido: (pedidoId: number): Promise<PedidoApi> =>
     apiClient.put<PedidoApi>(`/pedidos/${pedidoId}/marchar`),
 
-  /** Cerrar pedido (cobrado) */
-  cerrarPedido: (pedidoId: number): Promise<PedidoApi> =>
-    apiClient.put<PedidoApi>(`/pedidos/${pedidoId}/cerrar`),
+  /** Cerrar pedido (cobrado) con propina, descuento y método de pago */
+  cerrarPedido: (pedidoId: number, propina: number = 0, metodo_pago: string = 'EFECTIVO', descuento: number = 0): Promise<PedidoApi> =>
+    apiClient.put<PedidoApi>(`/pedidos/${pedidoId}/cerrar`, { propina, metodo_pago, descuento }),
 
   /** Lista pedidos de una mesa */
   pedidosPorMesa: (mesaId: number): Promise<PedidoApi[]> =>
@@ -114,4 +121,8 @@ export const orderApi = {
   /** Añadir líneas a un pedido existente (continuar persona) */
   agregarLineas: (pedidoId: number, lineas: LineaPedidoCreate[]): Promise<PedidoApi> =>
     apiClient.post<PedidoApi>(`/pedidos/${pedidoId}/lineas`, { lineas }),
+
+  /** Eliminar una línea de un pedido ABIERTO o RETENIDO */
+  eliminarLinea: (pedidoId: number, lineaId: number): Promise<PedidoApi> =>
+    apiClient.delete<PedidoApi>(`/pedidos/${pedidoId}/lineas/${lineaId}`),
 };

@@ -1,5 +1,10 @@
 /**
- * Menu Ingest API — Preview local + guardado real en backend
+ * @module menuIngestApi
+ * @description API de ingesta de carta — preview CSV local + guardado backend
+ * SUME Docblock v2.0
+ * Entradas : csvText (string) o csvFile (File)
+ * Lógica   : Parsea CSV, categoriza items por keywords, sube a /menu/ingestar
+ * Salidas  : ItemImportado[] (preview) o { items_guardados } (guardado)
  */
 import type { ItemImportado } from '../types/MenuIngestTypes';
 
@@ -40,9 +45,10 @@ export const menuIngestApi = {
     const lineas = csvText.trim().split('\n').slice(1);
     return lineas
       .map(linea => {
-        const partes = linea.split(',');
-        const nombre = (partes[0] ?? '').trim();
-        const precioStr = (partes[1] ?? '').trim().replace(',', '.');
+        // Regex: captura nombre (opcionalmente entre comillas) y precio
+        const match = linea.match(/^"?([^"]*?)"?\s*,\s*"?([^"]*)"?\s*$/);
+        const nombre = (match?.[1] ?? '').trim();
+        const precioStr = (match?.[2] ?? '').trim().replace(',', '.');
         const precio = parseFloat(precioStr) || 0;
         const { categoria, emoji } = categorizarItem(nombre);
         return { nombre, precio, categoriaDetectada: categoria, emoji };

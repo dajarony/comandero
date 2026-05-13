@@ -3,13 +3,18 @@
  * SUME Docblock v2.0 | Entradas: mesaId (URL) | Salidas: navigate ticket/mesas
  * Navegación: Grupos → Categorías → Items (3 niveles)
  */
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { CarritoSheet, PedirCuentaBtn } from './OrderPageV2.helpers';
 import { useOrderPageState, FAV_CAT } from './OrderPageV2.hooks';
 import styles from './OrderPageV2.module.css';
 
 export function OrderPageV2() {
-  const { mesaId = '1' } = useParams<{ mesaId: string }>();
+  const { mesaId } = useParams<{ mesaId: string }>();
+  if (!mesaId) return <Navigate to="/mesas" replace />;
+  return <OrderPageContent mesaId={mesaId} />;
+}
+
+function OrderPageContent({ mesaId }: { mesaId: string }) {
   const s = useOrderPageState(mesaId);
 
   // Nivel actual: 'grupos' | 'categorias' | 'items'

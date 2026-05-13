@@ -22,11 +22,11 @@ import type { TopItem } from '../types/DashboardTypes';
 import styles from './DashboardPage.module.css';
 
 export function DashboardPage() {
-  const { stats, loading, error, refrescar } = useDashboardFlow();
+  const { stats, loading, error, refrescar, resetear } = useDashboardFlow();
 
   return (
     <div className={styles.container}>
-      <Header onRefresh={refrescar} />
+      <Header onRefresh={refrescar} onReset={resetear} />
 
       {loading && (
         <div className={styles.loadingWrap}>Cargando estadisticas...</div>
@@ -82,16 +82,17 @@ export function DashboardPage() {
 
 /* ── Sub-componentes internos ──────────────────────────────── */
 
-function Header({ onRefresh }: { onRefresh: () => void }) {
+function Header({ onRefresh, onReset }: { onRefresh: () => void; onReset: () => void }) {
   return (
     <header className={styles.header}>
       <div className={styles.logoArea}>
         <div className={styles.logoIcon}>📊</div>
         <h1 className={styles.title}>Estadisticas del Dia</h1>
       </div>
-      <button className={styles.refreshBtn} onClick={onRefresh}>
-        🔄
-      </button>
+      <div className={styles.headerActions}>
+        <button className={styles.resetBtn} onClick={onReset}>🗑️ Reset</button>
+        <button className={styles.refreshBtn} onClick={onRefresh}>🔄</button>
+      </div>
     </header>
   );
 }

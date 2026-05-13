@@ -1,0 +1,218 @@
+/* OrderHistoryPage — CSS Modules — Mobile First */
+
+.container {
+  padding: 20px 16px 16px;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+/* ── Header ── */
+.header {
+  margin-bottom: 20px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.headerLeft h1 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #1e293b;
+  margin: 0 0 2px;
+  letter-spacing: -0.02em;
+}
+
+.headerLeft p {
+  color: #94a3b8;
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.exportBtn {
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.exportBtn:hover   { background: #0f172a; }
+.exportBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Stat Cards — 2 columnas ── */
+.statsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.statCard {
+  padding: 14px 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statCardGreen { background: #ecfdf5; border: 1.5px solid #a7f3d0; }
+.statCardAmber { background: #fffbeb; border: 1.5px solid #fde68a; }
+
+.statLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.statLabelGreen { color: #065f46; }
+.statLabelAmber { color: #92400e; }
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.statValueGreen { color: #064e3b; }
+.statValueAmber { color: #78350f; }
+
+/* ── Filtros ── */
+.filters {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.filterLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.filterInput, .filterSelect {
+  border: 1.5px solid #e2e8f0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  outline: none;
+  background: #f8fafc;
+  color: #334155;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.filterInput:focus, .filterSelect:focus {
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+}
+
+.filterBtn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 20px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.filterBtn:hover { background: #4f46e5; }
+.filterBtn:active { transform: scale(0.97); }
+
+/* ── Tabla ── */
+.tableWrapper {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.emptyState, .loadingState {
+  padding: 3rem;
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 520px; /* fuerza scroll en móvil antes de cortar */
+}
+
+.thead tr {
+  background: #f8fafc;
+  border-bottom: 1.5px solid #e2e8f0;
+}
+
+.th {
+  padding: 12px 14px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.thRight { text-align: right; }
+
+.tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: #f8fafc; }
+
+.td {
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #334155;
+  white-space: nowrap;
+}
+.tdRight { text-align: right; }
+.tdId { font-family: monospace; color: #cbd5e1; font-size: 0.78rem; }
+
+.mesaBadge {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 1px solid #c7d2fe;
+}
+
+.propina { color: #16a34a; font-weight: 700; }
+.total   { color: #0f172a; font-weight: 900; }

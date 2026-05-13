@@ -1,5 +1,10 @@
 /**
- * Tables Store — Estado de mesas en Zustand
+ * @module tablesStore
+ * @description Store Zustand de mesas — estado global del módulo tables
+ * SUME Docblock v2.0
+ * Entradas : mesas[], filtro, busqueda, loading, error
+ * Lógica   : Almacena y expone setters para estado de mesas
+ * Salidas  : useTablesStore hook con state y actions
  */
 import { create } from 'zustand';
 import type { Mesa, FiltroMesa } from '../types/TablesTypes';

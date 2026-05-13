@@ -1,4 +1,8 @@
-// src/features/order/types/OrderTypesV2.ts
+/**
+ * @module OrderTypesV2
+ * @description Tipos v2 con modificadores, bloques y subcategorías
+ * SUME Docblock v2.0
+ */
 
 export type TipoModificador = 'radio' | 'checkbox' | 'stepper' | 'textarea';
 

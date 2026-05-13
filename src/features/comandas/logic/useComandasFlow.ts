@@ -12,6 +12,7 @@ import { tablesApi } from '@/features/tables/api/tablesApi';
 import { orderApi } from '@/features/order/api/orderApi';
 import type { Mesa } from '@/features/tables/types/TablesTypes';
 import type { PedidoApi } from '@/features/order/api/orderApi';
+import { printTicketFromText } from './printTicket';
 
 export interface MesaConPedidos {
   mesa: Mesa;
@@ -28,10 +29,10 @@ interface ComandasFlowResult {
   handleMarcharPedido: (pedidoId: number) => Promise<void>;
   handleUpdateNota: (mesaId: number, nota: string | null) => Promise<void>;
   handleAddToPersona: (mesaId: number, pedidoId: number) => void;
-  handleMarcharDestino: (pedidoId: number, destino: string) => Promise<void>;
   handleRetenerPedido: (pedidoId: number) => Promise<void>;
   handleLiberarPedido: (pedidoId: number) => Promise<void>;
   handlePrintTicket: (pedidoId: number) => Promise<string>;
+  handleEliminarLinea: (pedidoId: number, lineaId: number) => Promise<void>;
 }
 
 const ESTADOS_ACTIVOS: Mesa['estado'][] = ['OCUPADA', 'PENDIENTE_COBRO'];
@@ -82,8 +83,13 @@ export function useComandasFlow(): ComandasFlowResult {
     navigate(`/comanda/${mesaId}?pedido=${pedidoId}`);
 
   const handleMarcharPedido = async (pedidoId: number) => {
-    await orderApi.marcharPedido(pedidoId);
+    try { await orderApi.marcharPedido(pedidoId); }
+    catch (err) { setError(err instanceof Error ? err.message : 'Error al marchar pedido'); }
     await load();
+    try {
+      const texto = await orderApi.fetchTicketTexto(pedidoId);
+      printTicketFromText(texto);
+    } catch { /* si falla impresión, no bloquear */ }
   };
 
   const handleUpdateNota = async (mesaId: number, nota: string | null) => {
@@ -91,26 +97,28 @@ export function useComandasFlow(): ComandasFlowResult {
     await load();
   };
 
-  const handleMarcharDestino = async (pedidoId: number, destino: string) => {
-    try { await orderApi.marcharPedidoDestino(pedidoId, destino); }
-    catch { /* estado desactualizado */ }
-    await load();
-  };
-
   const handleRetenerPedido = async (pedidoId: number) => {
     try { await orderApi.retenerPedido(pedidoId); }
-    catch { /* estado desactualizado */ }
+    catch (err) { setError(err instanceof Error ? err.message : 'Error al retener pedido'); }
     await load();
   };
 
   const handleLiberarPedido = async (pedidoId: number) => {
     try { await orderApi.liberarPedido(pedidoId); }
-    catch { /* estado desactualizado */ }
+    catch (err) { setError(err instanceof Error ? err.message : 'Error al liberar pedido'); }
     await load();
   };
 
   const handlePrintTicket = async (pedidoId: number): Promise<string> => {
-    return orderApi.fetchTicketTexto(pedidoId);
+    const texto = await orderApi.fetchTicketTexto(pedidoId);
+    printTicketFromText(texto);
+    return texto;
+  };
+
+  const handleEliminarLinea = async (pedidoId: number, lineaId: number) => {
+    try { await orderApi.eliminarLinea(pedidoId, lineaId); }
+    catch (err) { setError(err instanceof Error ? err.message : 'Error al eliminar línea'); }
+    await load();
   };
 
   return {
@@ -118,8 +126,8 @@ export function useComandasFlow(): ComandasFlowResult {
     refresh: load,
     handleTapCobrar, handleTapAddOrder,
     handleMarcharPedido, handleUpdateNota,
-    handleMarcharDestino, handleRetenerPedido,
+    handleRetenerPedido,
     handleLiberarPedido, handlePrintTicket,
-    handleAddToPersona,
+    handleAddToPersona, handleEliminarLinea,
   };
 }

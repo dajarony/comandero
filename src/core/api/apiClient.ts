@@ -1,15 +1,14 @@
 /**
- * ═══════════════════════════════════════════════════════
- * Archivo: core/api/apiClient.ts
- * Tipo: Infraestructura → Cliente HTTP Centralizado
- * 
- * Responsabilidades:
- * - Wrapper sobre fetch con base URL del backend
- * - Inyección automática de JWT en cada request
- * - Unwrap de ApiResponse<T> del backend
- * - Manejo de errores 401 (redirect a login)
- * ═══════════════════════════════════════════════════════
+ * @module apiClient
+ * @description Cliente HTTP centralizado con JWT y soporte Offline/Outbox
+ * SUME Docblock v2.0
+ * Entradas : endpoint (string), options (RequestInit)
+ * Lógica   : fetch + offline caching + outbox fallback para mutaciones + JWT
+ * Salidas  : Promise<T> con datos desenvueltos
  */
+
+import { offlineStore, type JsonValue } from './offlineStore';
+import { logger } from '../logger/logger';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -35,11 +34,28 @@ class ApiError extends Error {
     }
 }
 
+function parseRequestBody(body: BodyInit | null | undefined): JsonValue | null {
+    if (!body || typeof body !== 'string') return null;
+    return JSON.parse(body) as JsonValue;
+}
+
+function createMutationOptions(method: 'POST' | 'PUT' | 'DELETE', body?: unknown): RequestInit {
+    const idempotencyKey = crypto.randomUUID();
+
+    return {
+        method,
+        headers: {
+            'X-Idempotency-Key': idempotencyKey,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    };
+}
+
 /**
- * Realiza una petición HTTP al backend.
+ * Realiza una petición HTTP al backend con manejo Offline Integrado.
  * - Añade Authorization header si hay token
- * - Parsea la respuesta como ApiResponse<T>
- * - Redirige a /login en caso de 401/403
+ * - Si hay internet: cachea GETs
+ * - Si no hay internet: devuelve GETs de caché o encola las mutaciones (Outbox)
  */
 async function request<T>(
     endpoint: string,
@@ -56,31 +72,78 @@ async function request<T>(
         headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-    });
+    const method = options.method || 'GET';
 
-    // Auth expirado o no autorizado → redirect a login
-    if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('comandero_token');
-        localStorage.removeItem('comandero_user');
-        window.location.href = '/login';
-        throw new ApiError(response.status, 'Sesión expirada');
+    try {
+        const response = await fetch(`${BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+        });
+
+        // Auth expirado o no autorizado → redirect a login (solo si no estamos ya en /login)
+        if (response.status === 401) {
+            localStorage.removeItem('comandero_token');
+            localStorage.removeItem('comandero_user');
+            if (!window.location.href.includes('/login')) {
+                window.location.href = '/login';
+            }
+            throw new ApiError(response.status, 'Sesión expirada');
+        }
+
+        const json = await response.json();
+
+        if (!response.ok) {
+            throw new ApiError(
+                response.status,
+                json.error || json.message || json.detail || 'Error del servidor',
+            );
+        }
+
+        const responseData = (json as ApiResponse<T>).data ?? json;
+
+        // Cachear las respuestas GET exitosas para usarlas si se cae el WiFi
+        if (method === 'GET') {
+            await offlineStore.setCacheData(endpoint, responseData);
+        }
+
+        return responseData as T;
+
+    } catch (error: unknown) {
+        // TypeError ocurre cuando falla el fetch por red (no hay conexión / CORS)
+        // NO usamos navigator.onLine porque en Android Capacitor siempre reporta false
+        const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+
+        if (isNetworkError) {
+            logger.warn(`Conexión fallida intentando ${method} ${endpoint}. Fallback a Offline Store.`);
+
+            if (method === 'GET') {
+                // Modo Lectura: Recuperar de caché
+                const cachedData = await offlineStore.getCacheData<T>(endpoint);
+                if (cachedData) {
+                     logger.info(`Devolviendo caché para ${endpoint}`);
+                     return cachedData;
+                }
+                throw new Error('Sin conexión y sin datos en caché para mostrar.');
+            } else {
+                // Modo Escritura: Guardar en Outbox para enviar más tarde
+                const parsedBody = parseRequestBody(options.body);
+                const idempotencyKey = headers['X-Idempotency-Key'] || crypto.randomUUID();
+                const queuedRequest = await offlineStore.enqueueRequest(method, endpoint, parsedBody, idempotencyKey);
+                
+                // Retornar éxito optimista para que la UI no se bloquee ni muestre error
+                // simulamos un ID temporal si es necesario para crear localmente
+                return {
+                    _offlineQueued: true,
+                    _optimistic: true,
+                    id: `temp-${queuedRequest.id}`,
+                    outboxId: queuedRequest.id
+                } as unknown as T;
+            }
+        }
+
+        // Si es otro tipo de error (ej. 400 Bad request), lo lanzamos normal
+        throw error;
     }
-
-    const json = await response.json();
-
-    if (!response.ok) {
-        throw new ApiError(
-            response.status,
-            json.message || json.detail || 'Error del servidor',
-        );
-    }
-
-    // El backend envuelve todo en { success, data, message }
-    // Retornamos solo data
-    return (json as ApiResponse<T>).data ?? json;
 }
 
 /** Métodos del cliente API */
@@ -88,19 +151,13 @@ export const apiClient = {
     get: <T>(endpoint: string) => request<T>(endpoint),
 
     post: <T>(endpoint: string, body?: unknown) =>
-        request<T>(endpoint, {
-            method: 'POST',
-            body: body ? JSON.stringify(body) : undefined,
-        }),
+        request<T>(endpoint, createMutationOptions('POST', body)),
 
     put: <T>(endpoint: string, body?: unknown) =>
-        request<T>(endpoint, {
-            method: 'PUT',
-            body: body ? JSON.stringify(body) : undefined,
-        }),
+        request<T>(endpoint, createMutationOptions('PUT', body)),
 
     delete: <T>(endpoint: string) =>
-        request<T>(endpoint, { method: 'DELETE' }),
+        request<T>(endpoint, createMutationOptions('DELETE')),
 };
 
 export { ApiError };

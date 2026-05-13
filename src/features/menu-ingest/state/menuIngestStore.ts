@@ -1,3 +1,11 @@
+/**
+ * @module menuIngestStore
+ * @description Store Zustand de ingesta de carta — estado del flujo CSV
+ * SUME Docblock v2.0
+ * Entradas : items[], estado, csvFile
+ * Lógica   : Almacena estado de ingesta con setters y clear
+ * Salidas  : useMenuIngestStore hook con state y actions
+ */
 import { create } from 'zustand';
 import type { ItemImportado, EstadoIngesta } from '../types/MenuIngestTypes';
 

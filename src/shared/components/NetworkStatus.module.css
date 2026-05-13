@@ -1,0 +1,102 @@
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.online {
+  background-color: rgba(220, 252, 231, 0.75);
+  color: #166534;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+.online .dot {
+  background-color: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+.offline {
+  background-color: rgba(255, 237, 213, 0.75);
+  color: #c2410c;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+}
+
+.offline .dot {
+  background-color: #f97316;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+}
+
+.syncing {
+  background-color: rgba(219, 234, 254, 0.75);
+  color: #1e40af;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  animation: float 2s ease-in-out infinite;
+}
+
+.syncing .dot {
+  background-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); opacity: 1; }
+  50% { transform: translateY(-2px); opacity: 0.8; }
+  100% { transform: translateY(0px); opacity: 1; }
+}
+
+.pendingBadge {
+  background: rgba(194, 65, 12, 0.15);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-left: 2px;
+  font-size: 0.65rem;
+}
+
+.syncBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  color: #1e40af;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.syncBtn:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+.syncIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.syncBtn:active .syncIcon {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}

@@ -34,13 +34,16 @@ export const MENU_GROUPS: GrupoMenu[] = [
     nombre: 'Comida',
     emoji: '🍽️',
     color: '#fef3c7',
-    categorias: [],
+    categorias: [
+      'Carnes', 'Pescados', 'Ensaladas', 'Sopas',
+      'Tapas', 'Fritos', 'Postres',
+    ],
   },
   {
     id: 'snacks',
     nombre: 'Snacks',
     emoji: '🥪',
     color: '#fce7f3',
-    categorias: [],
+    categorias: ['Sandwiches', 'Snacks', 'Pizzas', 'Pasta'],
   },
 ];

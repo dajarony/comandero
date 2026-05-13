@@ -1,3 +1,11 @@
+/**
+ * @module MenuIngestPage
+ * @description Página de importación de carta — drop zone, preview y guardado
+ * SUME Docblock v2.0
+ * Entradas : useMenuIngestFlow (items, estado, handlers)
+ * Lógica   : Renderiza drop zone CSV, tabla preview, botón guardar
+ * Salidas  : JSX de la vista de ingesta de menú
+ */
 import { useRef } from 'react';
 import type React from 'react';
 import { useMenuIngestFlow } from '../logic/useMenuIngestFlow';

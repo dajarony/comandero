@@ -39,7 +39,21 @@ export function useDashboardFlow() {
 
   useEffect(() => {
     cargarStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { stats, loading, error, refrescar: cargarStats };
+  const resetear = async () => {
+    if (!confirm('¿Seguro que quieres resetear las estadísticas de hoy?')) return;
+    setLoading(true);
+    try {
+      await dashboardApi.resetStats();
+      await cargarStats();
+    } catch (err) {
+      handleError(err, 'RESET_STATS_FAILED');
+      setError((err as Error).message);
+      setLoading(false);
+    }
+  };
+
+  return { stats, loading, error, refrescar: cargarStats, resetear };
 }

@@ -67,7 +67,10 @@ export const IAChatPage: React.FC = () => {
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { cargarSugerencias(); }, []);
+  useEffect(() => {
+    cargarSugerencias();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [historial, isChatLoading]);
 
   const handleSend = async () => {

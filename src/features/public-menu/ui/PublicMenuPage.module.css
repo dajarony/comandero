@@ -1,0 +1,191 @@
+/* ═══ PublicMenuPage — Carta QR pública ═══
+ * SUME Docblock v2.0 | sin BottomNav (vista cliente)
+ */
+
+.page {
+  min-height: 100dvh;
+  background: #f8fafc;
+  padding-bottom: 40px;
+}
+
+/* ── Hero header ── */
+.hero {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  padding: 40px 24px 32px;
+  border-radius: 0 0 36px 36px;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.25);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+}
+
+.heroSub {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* ── Main content ── */
+.main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ── Chips categorías ── */
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 24px;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chipActive {
+  background: #4f46e5;
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ── Lista productos ── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.card:active { transform: scale(0.98); }
+
+.cardEmoji {
+  width: 60px;
+  height: 60px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.cardInfo { flex: 1; min-width: 0; }
+
+.cardName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardCat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cardPrice {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* ── Estados ── */
+.stateBox {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.errorIcon { font-size: 2.5rem; }
+.errorTitle { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 0; }
+.errorMsg   { font-size: 0.9rem; color: #64748b; margin: 0; }
+
+.emptyMsg {
+  text-align: center;
+  padding: 3rem 0;
+  color: #94a3b8;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ── Footer ── */
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.footerText {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}

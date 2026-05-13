@@ -15,12 +15,21 @@ import type { PedidoApi } from '@/features/order/api/orderApi';
 import type { MetodoPago } from '../types/CheckoutTypes';
 
 export function useCheckoutFlow(mesaId: string) {
-  const [pedidos, setPedidos] = useState<PedidoApi[]>([]);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [pedidos, setPedidos]       = useState<PedidoApi[]>([]);
+  const [selected, setSelected]     = useState<Set<number>>(new Set());
   const [metodoPago, setMetodoPago] = useState<MetodoPago>('EFECTIVO');
-  const [loading, setLoading] = useState(true);
-  const [cobrando, setCobrando] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [descuento, setDescuento]   = useState<number>(0);
+  const [efectivoRecibido, setEfectivoRecibido] = useState<number>(0);
+  const [loading, setLoading]       = useState(true);
+  const [cobrando, setCobrando]     = useState(false);
+  const [errorMsg, setErrorMsg]     = useState<string | null>(null);
+
+  // Propina: guardamos % y valor custom por separado
+  // propina se calcula al vuelo sobre totalConDescuento → nunca queda stale
+  const [propinaPercent, setPropinaPercent]   = useState<number>(0);   // 0 | 10 | 15 | 20
+  const [propinaCustom, setPropinaCustomState] = useState<number>(0);
+  const [isCustomPropina, setIsCustomPropina] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,33 +49,59 @@ export function useCheckoutFlow(mesaId: string) {
   const toggleSelect = useCallback((pedidoId: number) => {
     setSelected(prev => {
       const next = new Set(prev);
-      next.has(pedidoId) ? next.delete(pedidoId) : next.add(pedidoId);
+      if (next.has(pedidoId)) {
+        next.delete(pedidoId);
+      } else {
+        next.add(pedidoId);
+      }
       return next;
     });
   }, []);
 
-  const selectAll = useCallback(() => {
-    setSelected(new Set(pedidos.map(p => p.id)));
-  }, [pedidos]);
-
+  const selectAll  = useCallback(() => setSelected(new Set(pedidos.map(p => p.id))), [pedidos]);
   const selectNone = useCallback(() => setSelected(new Set()), []);
 
-  const totalSelected = pedidos
-    .filter(p => selected.has(p.id))
-    .reduce((sum, p) => sum + p.total, 0);
+  // ── Cálculos derivados ──────────────────────────────────────
+  const subtotal          = pedidos.filter(p => selected.has(p.id)).reduce((s, p) => s + p.total, 0);
+  const totalGeneral      = pedidos.reduce((s, p) => s + p.total, 0);
+  const allSelected       = selected.size === pedidos.length && pedidos.length > 0;
+  const totalConDescuento = Math.max(subtotal - descuento, 0);
 
-  const totalGeneral = pedidos.reduce((sum, p) => sum + p.total, 0);
-  const allSelected = selected.size === pedidos.length && pedidos.length > 0;
+  // Propina calculada al vuelo: si % → aplica sobre totalConDescuento; si custom → valor directo
+  const propina       = isCustomPropina
+    ? propinaCustom
+    : Math.round(totalConDescuento * propinaPercent) / 100;
+  const totalConPropina = totalConDescuento + propina;
 
+  // Exponer setters limpios
+  const setPropinaPct = (pct: number) => {
+    setIsCustomPropina(false);
+    setPropinaPercent(pct);
+  };
+  const setPropinaCustom = (val: number) => {
+    setIsCustomPropina(true);
+    setPropinaCustomState(val);
+  };
+
+  const cambio = metodoPago === 'EFECTIVO' && efectivoRecibido > totalConPropina
+    ? efectivoRecibido - totalConPropina
+    : 0;
+
+  // ── Cobrar ──────────────────────────────────────────────────
   const handleCobrar = async () => {
     if (selected.size === 0) return;
     try {
       setCobrando(true);
-      for (const pedidoId of selected) {
-        await orderApi.cerrarPedido(pedidoId);
+      const ids = Array.from(selected);
+      for (let i = 0; i < ids.length; i++) {
+        const propinaPedido = i === 0 ? propina : 0;
+        const descuentoPedido = i === 0 ? descuento : 0;
+        await orderApi.cerrarPedido(ids[i], propinaPedido, metodoPago, descuentoPedido);
       }
       if (allSelected) {
         await tablesApi.liberarMesa(Number(mesaId));
+      } else {
+        await tablesApi.cambiarEstado(Number(mesaId), 'OCUPADA');
       }
       navigate('/mesas');
     } catch (error) {
@@ -77,10 +112,29 @@ export function useCheckoutFlow(mesaId: string) {
     }
   };
 
+  const handleLiberar = async () => {
+    try {
+      setCobrando(true);
+      await tablesApi.liberarMesa(Number(mesaId));
+      navigate('/mesas');
+    } catch (error) {
+      handleError(error, 'CHECKOUT_LIBERAR_FAILED');
+      setErrorMsg(error instanceof Error ? error.message : 'Error al liberar mesa');
+    } finally {
+      setCobrando(false);
+    }
+  };
+
   return {
     pedidos, selected, toggleSelect, selectAll, selectNone,
-    totalSelected, totalGeneral, allSelected,
-    metodoPago, setMetodoPago, handleCobrar,
+    subtotal, totalGeneral, allSelected,
+    descuento, setDescuento,
+    propinaPercent, isCustomPropina, propinaCustom,
+    setPropinaPct, setPropinaCustom,
+    propina, totalConDescuento, totalConPropina,
+    metodoPago, setMetodoPago,
+    efectivoRecibido, setEfectivoRecibido, cambio,
+    handleCobrar, handleLiberar,
     loading, cobrando, errorMsg,
   };
 }

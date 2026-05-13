@@ -1,67 +1,22 @@
 /**
- * TicketPage — Ticket digital post-MARCHAR
- * Muestra la comanda como recibo con navegación clara
+ * @module TicketPage
+ * @description Ticket digital post-MARCHAR — UI pura
+ * SUME Docblock v2.0
+ * Entradas : useTicketFlow (datos + handlers)
+ * Lógica   : delegada a useTicketFlow.ts
+ * Salidas  : JSX ticket con acciones de navegación
  */
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { orderApi } from '../api/orderApi';
+import { useTicketFlow } from '../logic/useTicketFlow';
 import { useAuthStore } from '@/features/auth/state/authStore';
 import styles from './TicketPage.module.css';
 
-interface LineaPedido {
-    id: number;
-    item_menu_id: number;
-    item_nombre: string;
-    item_emoji: string;
-    cantidad: number;
-    precio_unitario: number;
-    nota: string;
-}
-
-interface Pedido {
-    id: number;
-    mesa_id: number;
-    usuario_id: number;
-    estado: string;
-    total: number;
-    created_at: string;
-    lineas: LineaPedido[];
-}
-
 export function TicketPage() {
-    const { pedidoId } = useParams<{ pedidoId: string }>();
-    const [searchParams] = useSearchParams();
-    const mesaNum = searchParams.get('mesa') || '?';
-    const navigate = useNavigate();
+    const {
+        pedido, loading, ticketTexto, mesaNum,
+        handleVolverMesas, handleVolverComanda,
+        handleVerTicketCocina, handleCerrarTicket,
+    } = useTicketFlow();
     const usuario = useAuthStore(s => s.usuario);
-
-    const [pedido, setPedido] = useState<Pedido | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [ticketTexto, setTicketTexto] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!pedidoId) return;
-        orderApi.fetchPedido(Number(pedidoId))
-            .then(setPedido)
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, [pedidoId]);
-
-    const handleVolverMesas = () => navigate('/mesas', { replace: true });
-    const handleVolverComanda = () => {
-        if (pedido) navigate(`/comanda/${pedido.mesa_id}`, { replace: true });
-        else navigate('/mesas', { replace: true });
-    };
-
-    const handleVerTicketCocina = async () => {
-        if (!pedidoId) return;
-        try {
-            const texto = await orderApi.fetchTicketTexto(Number(pedidoId));
-            setTicketTexto(texto);
-        } catch (err) {
-            console.error('Error ticket cocina:', err);
-        }
-    };
 
     if (loading) {
         return <div className={styles.loading}>⏳ Cargando ticket...</div>;
@@ -94,7 +49,7 @@ export function TicketPage() {
             <div className={styles.container}>
                 <pre className={styles.ticketTexto}>{ticketTexto}</pre>
                 <div className={styles.actions}>
-                    <button className={`${styles.actionBtn} ${styles.printBtn}`} onClick={() => setTicketTexto(null)}>
+                    <button className={`${styles.actionBtn} ${styles.printBtn}`} onClick={handleCerrarTicket}>
                         ← Volver
                     </button>
                     <button className={`${styles.actionBtn} ${styles.doneBtn}`} onClick={handleVolverMesas}>
@@ -171,8 +126,11 @@ export function TicketPage() {
                 </div>
             </div>
 
-            {/* Acciones — siempre visibles, sin window.open ni window.print */}
+            {/* Acciones */}
             <div className={styles.actions}>
+                <button className={`${styles.actionBtn} ${styles.printBtn}`} onClick={() => window.print()}>
+                    🖨️ Imprimir
+                </button>
                 <button className={`${styles.actionBtn} ${styles.printBtn}`} onClick={handleVerTicketCocina}>
                     🧾 Cocina
                 </button>

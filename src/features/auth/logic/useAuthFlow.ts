@@ -1,10 +1,16 @@
 /**
- * useAuthFlow — Lógica de autenticación
+ * @module useAuthFlow
+ * @description Hook de lógica de login (formulario + llamada API + navegación)
+ * SUME Docblock v2.0
+ * Entradas : email y password del formulario
+ * Lógica   : Valida, llama authApi.login, guarda sesión, navega a /mesas
+ * Salidas  : { email, password, error, loading, handleLogin }
  */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { useAuthStore } from '../state/authStore';
+import { handleError } from '../../../core/errors/errorHandler';
 
 export function useAuthFlow() {
   const navigate = useNavigate();
@@ -22,10 +28,11 @@ export function useAuthFlow() {
     try {
       const resp = await authApi.login({ email, password });
       setSession(resp.access_token, resp.usuario);
-      navigate('/mesas', { replace: true });
+      navigate('/', { replace: true });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error de conexión';
-      setError(msg);
+      const e = err as { message?: string };
+      setError(e.message || 'Credenciales incorrectas');
+      handleError(err, 'Login');
     } finally {
       setLoading(false);
     }

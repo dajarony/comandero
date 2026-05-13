@@ -1,5 +1,10 @@
 /**
- * Tables API — Conecta con el backend real
+ * @module tablesApi
+ * @description Capa API de mesas — conecta con backend REST
+ * SUME Docblock v2.0
+ * Entradas : mesaId, comensales, estado, nota
+ * Lógica   : Llama endpoints /mesas via apiClient (GET, POST, PUT)
+ * Salidas  : Promise<Mesa[]> o Promise<Mesa>
  */
 import { apiClient } from '@/core/api/apiClient';
 import type { Mesa } from '../types/TablesTypes';

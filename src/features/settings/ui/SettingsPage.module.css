@@ -1,0 +1,146 @@
+/* ═══ Settings Page ═══ */
+
+.container {
+  padding: 20px 16px 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--color-dark);
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+}
+
+/* ── Card ── */
+.card, .linksCard {
+  background: var(--color-surface);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin: 0 0 16px;
+}
+
+.error {
+  color: #dc2626;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+/* ── Fields ── */
+.fieldGroup {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--color-secondary);
+}
+
+/* ── Save Button ── */
+.saveBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #06D7A0, #04c490);
+  color: white;
+  font-size: 1rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+
+.saveBtn:active { transform: scale(0.97); }
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Link Buttons ── */
+.linkBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+
+.linkBtn:last-child { border-bottom: none; }
+.linkBtn:active { background: #f8fafc; border-radius: 10px; }
+
+.linkBtn > span:first-child { font-size: 1.4rem; }
+
+.linkTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.linkDesc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.arrow {
+  margin-left: auto;
+  font-size: 1.4rem;
+  color: #cbd5e1;
+  font-weight: 300;
+}

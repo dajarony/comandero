@@ -1,9 +1,10 @@
 /**
- * Tables Flow — Carga mesas reales del backend
- * 
- * Entradas: filtro de mesa, búsqueda por número
- * Acciones: fetch real, filtra mesas, navega según estado
- * Salidas: mesas filtradas, conteos, handler de tap
+ * @module useTablesFlow
+ * @description Hook de lógica de mesas — carga, filtra y navega
+ * SUME Docblock v2.0
+ * Entradas : filtro de mesa, búsqueda por número
+ * Lógica   : Fetch real del backend, filtra mesas, navega según estado
+ * Salidas  : mesasFiltradas, conteos, handleTapMesa, loading, error
  */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

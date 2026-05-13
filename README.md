@@ -1,73 +1,193 @@
-# React + TypeScript + Vite
+# Comandero Digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TPV movil y comandero digital para restaurantes, bares y cafeterias. La aplicacion permite gestionar mesas, tomar comandas por persona, enviar pedidos a cocina en tiempo real, cobrar tickets, trabajar con tolerancia a cortes de red y administrar usuarios, carta, gastos, estadisticas e IA.
 
-Currently, two official plugins are available:
+Repositorio principal: [github.com/dajarony/comandero](https://github.com/dajarony/comandero)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Que Incluye
 
-## React Compiler
+- App web/PWA para TPV movil con React, TypeScript y Vite.
+- App Android con Capacitor.
+- Backend FastAPI con autenticacion JWT, multi-tenant por restaurante y API REST.
+- WebSocket para cocina/KDS en tiempo real.
+- Outbox offline en IndexedDB para guardar mutaciones cuando falla la red.
+- Idempotencia en pedidos para evitar duplicados en reintentos.
+- Paneles de mesas, comandas, cocina, cobro, historico, gastos, usuarios, configuracion e IA.
+- Ingestion de carta y herramientas IA para operar sobre datos del restaurante.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack
 
-## Expanding the ESLint configuration
+| Capa | Tecnologia |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, Zustand, CSS Modules |
+| Movil | Capacitor Android |
+| Backend | FastAPI, SQLAlchemy async, Pydantic |
+| Base de datos | PostgreSQL, recomendado Neon |
+| Tiempo real | WebSocket autenticado por JWT |
+| Offline | IndexedDB con `idb-keyval` |
+| Graficas | Chart.js |
+| Deploy backend | Docker / Google Cloud Run |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Funcionalidad Principal
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Mesas con estados y notas operativas.
+- Comandas separadas por persona y continuacion de pedidos abiertos.
+- Marcha a cocina/barra, retencion, liberacion y completado de pedidos.
+- Ticket de texto e impresion desde webview/Android.
+- Cobro con propina, descuento y metodo de pago.
+- KDS/cocina con avisos en tiempo real.
+- Dashboard con ventas, historico y estadisticas.
+- Gestion de carta, categorias, usuarios, gastos y configuracion del restaurante.
+- Registro de restaurante y creacion de personal desde rutas admin.
+- Modo offline con cola de sincronizacion, estados pendientes/fallidos y reintento idempotente.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Seguridad y Robustez
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Autenticacion JWT obligatoria para rutas privadas.
+- Separacion multi-tenant por `restaurante_id` en backend.
+- Registro publico limitado a alta de restaurante.
+- Creacion de personal solo por administradores.
+- Produccion exige `JWT_SECRET` real y bloquea credenciales demo por defecto.
+- WebSocket sin token en query string: usa subprotocol `comandero-jwt`.
+- Outbox con `X-Idempotency-Key` y deduplicacion backend para pedidos.
+- Impresion segura sin inyeccion de HTML.
+- Sincronizacion offline sin depender de `navigator.onLine`, que no es fiable en Android/Capacitor.
+
+## Estructura
+
+```text
+comandero/
+├── backend/                  # API FastAPI, modelos, servicios, routers y tests
+├── fronted/app/              # App React/Vite/Capacitor
+│   ├── src/app/              # Router, guards y layout base
+│   ├── src/core/             # API client, offline store, sync manager, logging
+│   ├── src/features/         # Modulos funcionales por dominio
+│   ├── src/shared/           # Componentes y hooks compartidos
+│   └── android/              # Proyecto Android Capacitor
+├── docs/                     # Documentacion tecnica y planes
+└── LICENSE
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Requisitos
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 20+ recomendado.
+- npm 10+.
+- Python 3.11+.
+- PostgreSQL compatible con SQLAlchemy asyncpg.
+- Android Studio si se va a compilar APK.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Variables de Entorno
+
+Frontend (`fronted/app/.env`):
+
+```env
+VITE_API_URL=http://localhost:8000/api/v1
+VITE_RESTAURANT_NAME=Restaurante
 ```
+
+Backend (`backend/.env`):
+
+```env
+DATABASE_URL=postgresql+asyncpg://user:password@host/dbname
+JWT_SECRET=genera-un-secreto-seguro-de-al-menos-32-caracteres
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=480
+CORS_ORIGINS=http://localhost:5173
+APP_ENV=development
+ENABLE_DEMO_USERS=false
+ANTHROPIC_API_KEY=
+```
+
+En produccion usa `APP_ENV=production`, un `JWT_SECRET` fuerte y `ENABLE_DEMO_USERS=false`.
+
+## Desarrollo Local
+
+Backend:
+
+```bash
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+API local: `http://localhost:8000`  
+Swagger/OpenAPI: `http://localhost:8000/docs`
+
+Frontend:
+
+```bash
+cd fronted/app
+npm install
+npm run dev
+```
+
+App local: `http://localhost:5173`
+
+## Android
+
+```bash
+cd fronted/app
+npm run build
+npx cap sync android
+npx cap open android
+```
+
+Para ejecutar en dispositivo/emulador:
+
+```bash
+npx cap run android
+```
+
+## Scripts Frontend
+
+```bash
+npm run dev       # servidor Vite
+npm run lint      # ESLint
+npm run build     # TypeScript + build produccion
+npm run preview   # preview del build
+npm run cap:sync  # build + sync Capacitor
+```
+
+## Verificacion
+
+Comandos usados para validar esta version:
+
+```bash
+cd fronted/app
+npm run lint
+npm run build
+
+cd ../../backend
+py -m compileall entradas logica modelos seguridad
+```
+
+## Despliegue
+
+Backend con Docker/Cloud Run:
+
+```bash
+cd backend
+./deploy.sh
+```
+
+Frontend web:
+
+```bash
+cd fronted/app
+npm run build
+```
+
+El resultado queda en `fronted/app/dist`.
+
+## Notas de Operacion
+
+- La tabla `idempotency_records` se crea con `Base.metadata.create_all`; si se usan migraciones manuales, crearla tambien en produccion.
+- Las sincronizaciones fallidas 4xx quedan marcadas como fallidas para revision, no se eliminan silenciosamente.
+- El cliente envia idempotency keys en POST/PUT/DELETE; el backend deduplica las mutaciones criticas de pedidos.
+- El token de WebSocket se envia como subprotocol para evitar que aparezca en logs de URL.
+
+## Licencia
+
+MIT. Ver `LICENSE`.

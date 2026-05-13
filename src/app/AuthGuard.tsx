@@ -1,35 +1,67 @@
 /**
- * AuthGuard — Protege rutas que requieren autenticación.
- * Si no hay token, redirige a /login.
- * Carga la sesión desde localStorage al montar.
- *
- * FIX: estado `initializing` evita race condition en primer render:
- * el store arranca con isAuthenticated=false aunque haya token en
- * localStorage porque loadFromStorage() es asíncrono (useEffect).
- * Mientras initializing===true devolvemos null para no redirigir
- * antes de que el store esté hidratado.
+ * @module AuthGuard
+ * @description Protege rutas que requieren JWT — redirige a /login si no hay sesión
  */
 import { useEffect, useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/state/authStore';
+import { authApi } from '@/features/auth/api/authApi';
+import { syncManager } from '@/core/api/syncManager';
+import { useAppSocket } from '@/shared/hooks/useAppSocket';
+import { BottomNav } from '@/shared/components/BottomNav';
 
 export function AuthGuard() {
-    const { isAuthenticated, loadFromStorage } = useAuthStore();
+    const { isAuthenticated, loadFromStorage, setSession, logout } = useAuthStore();
     const [initializing, setInitializing] = useState(true);
 
-    useEffect(() => {
-        loadFromStorage();
-        setInitializing(false);
-    }, [loadFromStorage]);
+    // 1. Activar WebSocket Global (Solo si hay sesión)
+    useAppSocket();
 
-    // Esperar hidratación del store antes de tomar decisiones de routing
+    useEffect(() => {
+        let cancelled = false;
+
+        async function initializeSession() {
+            loadFromStorage();
+            const token = localStorage.getItem('comandero_token');
+
+            if (!token) {
+                if (!cancelled) setInitializing(false);
+                return;
+            }
+
+            try {
+                const usuario = await authApi.getMe();
+                if (!cancelled) {
+                    setSession(token, usuario);
+                    syncManager.initializeSyncListeners();
+                }
+            } catch {
+                logout();
+            } finally {
+                if (!cancelled) setInitializing(false);
+            }
+        }
+
+        initializeSession();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [loadFromStorage, logout, setSession]);
+
     if (initializing) return null;
 
-    // Después de hidratar, si no hay sesión → login
     const token = localStorage.getItem('comandero_token');
-    if (!token && !isAuthenticated) {
+    if (!token || !isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
-    return <Outlet />;
+    return (
+        <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, paddingBottom: '72px' }}>
+                <Outlet />
+            </div>
+            <BottomNav />
+        </div>
+    );
 }

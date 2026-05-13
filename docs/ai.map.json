@@ -1,5 +1,5 @@
 {
-  "$schema": "dajarony-ai-native-v1",
+  "version": "dajarony-ai-native-v1",
   "project": {
     "name": "Comandero Digital",
     "architecture": "Feature-Driven + SUME Blocks (Dajarony V1)",

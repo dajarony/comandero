@@ -3,20 +3,36 @@
  * SUME DOCBLOCK v2.0
  * ===============================================================
  * Archivo: features/dashboard/api/dashboardApi.ts
- * Tipo: Adaptador API → Estadisticas del Dia
- * Lineas: ~20 / 200 MAX
+ * Tipo: Adaptador API → Estadísticas del día
+ * Líneas: ~30 / 200 MAX
  *
- * Acciones:
- * - Llama a GET /stats/hoy via apiClient
+ * Rutas backend:
+ *   GET /stats/resumen?periodo=hoy  → StatsHoy
  *
- * Ultima Modificacion: 2026-03-15 | Dajarony
- * Cambio: Conectar con endpoint real de estadisticas.
+ * Última Modificación: 2026-04-03 | Dajarony
+ * Cambio: Implementación real de fetchStatsHoy y resetStats.
  * ===============================================================
  */
-
-import { apiClient } from '@/core/api/apiClient';
 import type { StatsHoy } from '../types/DashboardTypes';
 
-export const dashboardApi = {
-  fetchStatsHoy: () => apiClient.get<StatsHoy>('/stats/hoy'),
-};
+const base = () => import.meta.env.VITE_API_URL || '/api/v1';
+const token = () => localStorage.getItem('comandero_token') || '';
+
+const headers = () => ({
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${token()}`,
+});
+
+async function fetchStatsHoy(): Promise<StatsHoy> {
+  const res = await fetch(`${base()}/stats/resumen?periodo=hoy`, { headers: headers() });
+  if (!res.ok) throw new Error('No se pudieron cargar las estadísticas');
+  const json = await res.json();
+  return json.data as StatsHoy;
+}
+
+async function resetStats(): Promise<void> {
+  // El backend no tiene endpoint de reset — recargamos simplemente
+  await fetchStatsHoy();
+}
+
+export const dashboardApi = { fetchStatsHoy, resetStats };

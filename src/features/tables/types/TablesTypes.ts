@@ -1,5 +1,7 @@
 /**
- * Types de Mesas — Matching backend contracts
+ * @module TablesTypes
+ * @description Tipos e interfaces de mesas — contrato con backend
+ * SUME Docblock v2.0
  */
 
 export type MesaEstado = 'LIBRE' | 'OCUPADA' | 'PENDIENTE_COBRO';

@@ -64,6 +64,22 @@
 .emptyIcon { font-size: 3rem; }
 .emptyTitle { font-size: 1.1rem; font-weight: 700; color: #1a1a2e; margin: 0; }
 
+.liberarBtn {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(245,158,11,0.35);
+  transition: transform 0.15s;
+}
+.liberarBtn:active { transform: scale(0.97); }
+.liberarBtn:disabled { opacity: 0.5; }
+
 /* Sections */
 .section {
   background: white;
@@ -218,13 +234,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  min-height: 80px; /* Asegura target grande */
   padding: 14px 8px;
   border-radius: 12px;
   background: #f5f5f7;
   color: #888;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
@@ -255,12 +273,13 @@
   color: white;
   border: none;
   border-radius: 30px;
-  padding: 18px;
-  font-size: 1.05rem;
+  padding: 20px;
+  font-size: 1.1rem;
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 10px 15px -3px rgba(34,197,94,0.4);
   transition: transform 0.15s;
+  min-height: 60px;
 }
 .cobrarBtn:active { transform: scale(0.97); }
 .cobrarBtn:disabled { opacity: 0.5; }
@@ -270,4 +289,72 @@
   font-size: 0.75rem;
   color: #f59e0b;
   font-weight: 600;
+}
+
+/* Propinas */
+.tipsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tipBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border-radius: 10px;
+  background: #f5f5f7;
+  color: #666;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tipBtnActive {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #22c55e;
+  box-shadow: 0 2px 4px rgba(34,197,94,0.1);
+}
+
+.tipLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.tipAmount {
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.customTipRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px 0;
+  border-top: 1px dashed #eee;
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.tipInput {
+  width: 100px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  text-align: right;
+  outline: none;
+}
+
+.tipInput:focus {
+  border-color: #3b82f6;
 }

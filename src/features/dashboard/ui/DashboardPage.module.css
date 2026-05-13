@@ -16,7 +16,7 @@
   background-color: var(--color-bg);
   color: var(--text-main);
   padding: 16px;
-  padding-bottom: 100px;
+  padding-bottom: 16px;
   overflow-y: auto;
 }
 
@@ -52,19 +52,17 @@
   margin: 0;
 }
 
+.headerActions { display: flex; gap: 8px; align-items: center; }
 .refreshBtn {
-  background: #0d3b2e;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  background: #0d3b2e; color: white; border: none; border-radius: 50%;
+  width: 40px; height: 40px; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
+.resetBtn {
+  background: #ef4444; color: white; border: none; border-radius: 20px;
+  padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+.resetBtn:active { transform: scale(0.95); opacity: 0.8; }
 
 /* Summary Cards */
 .summaryGrid {

@@ -1,46 +1,90 @@
+/* BottomNav — Pill flotante estilizada */
+
+/* Spacer in-flow para evitar espacio blanco al ocultarse */
+.navSpacer {
+  height: calc(72px + env(safe-area-inset-bottom, 0px));
+  transition: height 0.3s ease;
+  flex-shrink: 0;
+}
+.navSpacerHidden { height: 0; }
+
+/* Pill flotante */
 .bottomNav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: var(--color-surface);
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease;
+
+  width: min(92%, 480px);
+  height: 58px;
+
   display: flex;
+  align-items: center;
   justify-content: space-around;
-  padding: 12px 0 20px 0;
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
-  border-top: 1px solid var(--color-border);
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14),
+              0 2px 8px rgba(0, 0, 0, 0.06);
+
+  padding: 0 6px;
   z-index: 100;
+  opacity: 1;
 }
 
+.bottomNavHidden {
+  transform: translateX(-50%) translateY(calc(100% + 20px));
+  opacity: 0;
+}
+
+/* Cada tab */
 .navItem {
-  background: transparent;
-  color: #9CA3AF;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 8px;
-  box-shadow: none;
-  border: none;
-  cursor: pointer;
-}
-
-.navItem:hover,
-.navItem:focus {
+  justify-content: center;
+  gap: 2px;
+  height: 46px;
+  border-radius: 22px;
   border: none;
   background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0 4px;
 }
 
-.navIcon {
-  font-size: 1.25rem;
+.navItem:active {
+  transform: scale(0.9);
 }
 
-.navLabel {
-  font-size: 0.72rem;
-}
-
+/* Tab activo — pill interior verde */
 .navActive {
-  color: var(--color-secondary);
+  background: #07d5a1;
+  color: white;
+  box-shadow: 0 4px 12px rgba(7, 213, 161, 0.35);
+}
+
+/* Iconos — más pequeños y elegantes */
+.navItem svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Label diminuta */
+.navLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1;
 }

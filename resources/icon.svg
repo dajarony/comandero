@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="180" fill="#FFFFFF"/>
+
+  <!-- Clipboard body -->
+  <rect x="240" y="220" width="480" height="520" rx="40" fill="#2ECC71"/>
+
+  <!-- Clipboard clip base -->
+  <rect x="360" y="160" width="220" height="100" rx="16" fill="#27AE60"/>
+
+  <!-- Clip ring top -->
+  <rect x="420" y="120" width="100" height="60" rx="14" fill="#FFFFFF"/>
+
+  <!-- Checkmark circle -->
+  <circle cx="620" cy="340" r="50" fill="rgba(255,255,255,0.25)"/>
+
+  <!-- Checkmark -->
+  <polyline points="595,340 615,360 650,320" fill="none" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- List lines -->
+  <line x1="310" y1="380" x2="520" y2="380" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="310" y1="460" x2="520" y2="460" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+  <line x1="310" y1="540" x2="480" y2="540" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round"/>
+
+  <!-- Fork -->
+  <g stroke="#D5F5E3" stroke-width="14" stroke-linecap="round" fill="none">
+    <line x1="570" y1="470" x2="570" y2="680"/>
+    <line x1="545" y1="470" x2="545" y2="520"/>
+    <path d="M545,520 C545,540 570,540 570,520"/>
+    <line x1="595" y1="470" x2="595" y2="520"/>
+    <path d="M595,520 C595,540 570,540 570,520"/>
+  </g>
+
+  <!-- Knife -->
+  <g stroke="#D5F5E3" stroke-width="14" stroke-linecap="round" fill="none">
+    <line x1="640" y1="470" x2="640" y2="680"/>
+    <path d="M640,470 C640,470 675,490 675,520 C675,540 660,550 640,550"/>
+  </g>
+
+  <!-- Table shelf -->
+  <rect x="220" y="710" width="500" height="16" rx="8" fill="#2ECC71"/>
+  <line x1="300" y1="726" x2="280" y2="790" stroke="#2ECC71" stroke-width="14" stroke-linecap="round"/>
+  <line x1="640" y1="726" x2="660" y2="790" stroke="#2ECC71" stroke-width="14" stroke-linecap="round"/>
+</svg>
