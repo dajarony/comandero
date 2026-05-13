@@ -57,15 +57,16 @@ Repositorio principal: [github.com/dajarony/comandero](https://github.com/dajaro
 
 ```text
 comandero/
+├── src/                      # App React/Vite
+│   ├── app/                  # Router, guards y layout base
+│   ├── core/                 # API client, offline store, sync manager, logging
+│   ├── features/             # Modulos funcionales por dominio
+│   └── shared/               # Componentes y hooks compartidos
+├── android/                  # Proyecto Android Capacitor
 ├── backend/                  # API FastAPI, modelos, servicios, routers y tests
-├── fronted/app/              # App React/Vite/Capacitor
-│   ├── src/app/              # Router, guards y layout base
-│   ├── src/core/             # API client, offline store, sync manager, logging
-│   ├── src/features/         # Modulos funcionales por dominio
-│   ├── src/shared/           # Componentes y hooks compartidos
-│   └── android/              # Proyecto Android Capacitor
-├── docs/                     # Documentacion tecnica y planes
-└── LICENSE
+├── docs/                     # Documentacion tecnica y planes frontend
+├── resources/                # Assets fuente
+└── README.md
 ```
 
 ## Requisitos
@@ -118,7 +119,6 @@ Swagger/OpenAPI: `http://localhost:8000/docs`
 Frontend:
 
 ```bash
-cd fronted/app
 npm install
 npm run dev
 ```
@@ -128,7 +128,6 @@ App local: `http://localhost:5173`
 ## Android
 
 ```bash
-cd fronted/app
 npm run build
 npx cap sync android
 npx cap open android
@@ -155,11 +154,10 @@ npm run cap:sync  # build + sync Capacitor
 Comandos usados para validar esta version:
 
 ```bash
-cd fronted/app
 npm run lint
 npm run build
 
-cd ../../backend
+cd backend
 py -m compileall entradas logica modelos seguridad
 ```
 
@@ -175,11 +173,10 @@ cd backend
 Frontend web:
 
 ```bash
-cd fronted/app
 npm run build
 ```
 
-El resultado queda en `fronted/app/dist`.
+El resultado queda en `dist`.
 
 ## Notas de Operacion
 

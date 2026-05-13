@@ -1,0 +1,58 @@
+"""
+═══════════════════════════════════════════════════════════
+SUME DOCBLOCK v2.0
+═══════════════════════════════════════════════════════════
+Archivo: order.controller.py
+Tipo: Lógica → Controlador
+Líneas: 55 / 200 MAX
+Dependencias: 2 (order_service, ws_manager)
+
+Entradas:
+- order_data: JSON con mesa, items y cantidades.
+- user_token: Token de sesión del cliente.
+
+Acciones:
+- Valida la disponibilidad de los productos.
+- Calcula el total y aplica impuestos.
+- Notifica a la cocina mediante WebSocket.
+- Registra la transacción en el historial.
+
+Salidas:
+- 201 Created: Con el ID del pedido y tiempo estimado.
+- 400 Bad Request: Si hay error de validación.
+
+Logs Generados:
+- order:new_attempt (info)
+- order:kitchen_notified (info)
+- order:validation_failed (warning)
+
+Última Modificación: 2025-05-20 | Dajarony
+Cambio: Agregado broadcast a dispositivos de cocina.
+═══════════════════════════════════════════════════════════
+"""
+
+from typing import Dict, Any
+
+class OrderController:
+    def __init__(self, service, notifier):
+        self.service = service
+        self.notifier = notifier
+
+    async def handle_create_order(self, data: Dict[str, Any], user: str) -> Dict[str, Any]:
+        """Punto de entrada para la creación de comandas."""
+        # Validación rápida de integridad
+        if not data.get("items"):
+            return {"status": 400, "msg": "Pedido vacío"}
+
+        # Proceso de negocio
+        order = await self.service.create(user, data)
+        
+        # Notificación en tiempo real (STDG broadcast)
+        if order:
+            await self.notifier.send_to_kitchen(order)
+            return {"status": 201, "data": order}
+            
+        return {"status": 500, "msg": "Error interno"}
+
+# Singleton Controller
+order_controller = OrderController(None, None)

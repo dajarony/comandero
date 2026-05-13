@@ -1,0 +1,14 @@
+system: Comandero Digital Backend
+version: 1.0.0
+architecture: SUME + STDG
+layers:
+  - entradas: Adaptadores HTTP (FastAPI) y WS
+  - logica: Orquestadores y servicios de negocio puros
+  - salidas: Formateadores y adaptadores de hardware (Impresoras)
+  - contratos: Modelos Pydantic y tipado
+  - seguridad: Middlewares de auth, cifrado y logger
+core_principles:
+  - strict_separation_of_concerns: true
+  - centralized_logging: true
+  - max_file_lines: 200
+  - max_function_lines: 50

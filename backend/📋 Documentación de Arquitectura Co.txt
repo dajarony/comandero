@@ -1,0 +1,52 @@
+📋 Documentación de Arquitectura: Comandero Digital v1.0
+
+1. Visión del Sistema
+
+Sistema backend de alto rendimiento diseñado para la gestión de pedidos en tiempo real y la digitalización automatizada de cartas físicas mediante procesamiento de documentos (PDF/Imágenes).
+
+2. Estructura SUME + STDG (Actualizada)
+
+/comandero-backend/
+├── entradas/                # Adaptadores de entrada (HTTP/WS)
+│   ├── routers/             # Definición de rutas (FastAPI)
+│   ├── middlewares/         # Validación de sesión y API Keys
+│   └── validadores/         # Esquemas Pydantic para inputs
+├── logica/                  # Núcleo del negocio
+│   ├── controladores/       # Orquestadores de flujo
+│   ├── servicios/           # Lógica pura (IA Ingest, Pedidos, Inventario)
+│   └── eventos/             # Bus de eventos interno (Pub/Sub)
+├── salidas/                 # Formateadores de respuesta
+│   ├── respuestas/          # Estandarización de JSON
+│   └── impresoras/          # Lógica para comandas térmicas
+├── contratos/               # Interfaces y tipos (Single Source of Truth)
+├── seguridad/               # Cifrado, JWT y políticas CORS
+├── doc/                     # Documentación técnica y manuales
+├── tests/                   # Cobertura de código (Unitarios/Integración)
+├── cambios/                 # Registro vivo de modificaciones
+├── mapa-global/             # arquitectura.yaml (Trazabilidad)
+└── main.py                  # Punto de arranque limpio
+
+
+3. Flujo de Ingesta de Menú (PDF → AI)
+
+Entrada: POST /api/v1/menu/upload (Multipart file).
+
+Seguridad: Validación de extensión y tamaño de archivo.
+
+Lógica (Servicio de Ingesta):
+
+Extracción de texto (OCR/PDF Parsing).
+
+Prompting a Gemini para categorización estructurada (Bebidas, Entrantes, Precios).
+
+Almacenamiento en base de datos.
+
+Salida: Confirmación JSON del menú estructurado.
+
+4. Límites Operativos
+
+Funciones: < 50 líneas.
+
+Archivos: < 200 líneas.
+
+Logger: Obligatorio en cada servicio.

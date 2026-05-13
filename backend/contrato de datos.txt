@@ -1,0 +1,23 @@
+"""
+SUME DOCBLOCK v2.0
+Nombre: Esquema de Menú
+Tipo: Contrato
+"""
+
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class ItemMenu(BaseModel):
+    nombre: str
+    descripcion: Optional[str]
+    precio: float
+    disponible: bool = True
+
+class SeccionMenu(BaseModel):
+    categoria: str # Ej: 'Bebidas', 'Carnes'
+    items: List[ItemMenu]
+
+class MenuCompleto(BaseModel):
+    restaurante_id: str
+    version: str
+    secciones: List[SeccionMenu]

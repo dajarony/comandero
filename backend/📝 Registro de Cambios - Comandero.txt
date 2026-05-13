@@ -1,0 +1,19 @@
+📝 Registro de Cambios - Comandero Backend
+
+[20/05/2025] - Arquitectura Base e Ingesta
+
+Cambio: Definición de estructura SUME + STDG v2.0.
+
+Archivos Afectados:
+
+mapa-global/arquitectura.yaml
+
+logica/servicios/menu_ingest.service.py
+
+contratos/menu.schema.py
+
+Motivo: Inicio de proyecto y necesidad de procesamiento de PDFs para menús.
+
+Impacto: Establece la base para la carga de catálogos de restaurantes.
+
+Autor: AURALIS AEGS

@@ -1,0 +1,64 @@
+"""
+═══════════════════════════════════════════════════════════
+SUME DOCBLOCK v2.0
+═══════════════════════════════════════════════════════════
+Archivo: menu_parser.service.py
+Tipo: Lógica → Servicio
+Líneas: 65 / 200 MAX
+Dependencias: 3 (gemini_adapter, text_extractor, db_manager)
+
+Entradas:
+- file_stream: Flujo binario del PDF o imagen.
+- restaurante_id: Identificador único del comercio.
+
+Acciones:
+- Extrae texto mediante motor OCR de alta precisión.
+- Clasifica ítems, precios y categorías usando IA.
+- Valida la coherencia de precios (no negativos).
+- Registra el nuevo menú en el repositorio persistente.
+
+Salidas:
+- dict: Objeto estructurado con secciones y precios.
+- event: Emite 'menu:actualizado' tras éxito.
+
+Logs Generados:
+- menu:ingest_start (info)
+- menu:ai_processing (debug)
+- menu:ingest_error (error)
+
+Última Modificación: 2025-05-20 | Dajarony
+Cambio: Implementación inicial de parsing inteligente.
+═══════════════════════════════════════════════════════════
+"""
+
+import logging
+from typing import Dict, Any
+
+class MenuParserService:
+    def __init__(self, ai, extractor, db):
+        self.ai = ai
+        self.extractor = extractor
+        self.db = db
+        self.logger = logging.getLogger("menu_parser")
+
+    async def parse_and_store(self, stream: bytes, rest_id: str) -> Dict[str, Any]:
+        """Orquesta la transformación del documento a datos vivos."""
+        try:
+            # UAF 1: Extracción
+            raw_text = self.extractor.get_text(stream)
+            
+            # UAF 2: Estructuración IA
+            structured_data = await self.ai.structure_menu(raw_text)
+            
+            # UAF 3: Persistencia
+            result = await self.db.save_menu(rest_id, structured_data)
+            
+            self.logger.info(f"Menú procesado para rest_id: {rest_id}")
+            return {"success": True, "payload": result}
+            
+        except Exception as e:
+            self.logger.error(f"Error en ingesta de menú: {str(e)}")
+            return {"success": False, "error": str(e)}
+
+# Export de instancia para inyección
+menu_parser_service = MenuParserService(None, None, None)

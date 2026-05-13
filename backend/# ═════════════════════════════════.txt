@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════════════════════
+# MAPA GLOBAL DE ARQUITECTURA (STDG v2.0)
+# ═══════════════════════════════════════════════════════════
+
+version: "1.0.0"
+sistema: "Comandero Digital Inteligente"
+
+componentes:
+  - id: "ingesta_pdf"
+    nombre: "Servicio de Procesamiento de Menú"
+    responsable: "logic/services/menu_parser.service.py"
+    dependencias: ["gemini_api", "db_service"]
+    flujo: "PDF -> OCR -> LLM -> JSON -> DB"
+
+  - id: "gestion_pedidos"
+    nombre: "Controlador de Comandas"
+    responsable: "logic/controllers/order.controller.py"
+    entradas: ["websocket", "api_rest"]
+    salidas: ["broadcast_mesas", "comanda_cocina"]
+
+rutas_criticas:
+  - path: "/menu/ingestar"
+    metodo: "POST"
+    seguridad: "admin_only"
+    impacto: "Alto (Escritura en catálogo)"
+
+  - path: "/pedido/crear"
+    metodo: "POST"
+    seguridad: "user_session"
+    impacto: "Crítico (Operación real)"
