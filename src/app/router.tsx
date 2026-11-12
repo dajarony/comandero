@@ -1,4 +1,10 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { FloorGuard, ProductPage } from './ProductPage';
+import { ServiceTablesPage } from '@/features/comandero/ServiceTablesPage';
+import { ServiceOrderPage } from '@/features/comandero/ServiceOrderPage';
+import { ServiceRoundsPage } from '@/features/comandero/ServiceRoundsPage';
+import { ServiceMenuPage } from '@/features/comandero/ServiceMenuPage';
+import { PrinterPage } from '@/features/comandero/PrinterPage';
 import { AuthPage } from '../features/auth/ui/AuthPage';
 import { RegisterPage } from '../features/auth/ui/RegisterPage';
 import { TablesPage } from '../features/tables/ui/TablesPage';
@@ -30,24 +36,28 @@ export const router = createBrowserRouter([
     element: <AuthGuard />,
     children: [
       { path: '/', element: <RoleRedirect /> },
-      { path: '/mesas', element: <TablesPage /> },
-      { path: '/comandas', element: <ComandasPage /> },
-      { path: '/comanda/:mesaId', element: <OrderPageV2 /> },
-      { path: '/ticket/:pedidoId', element: <TicketPage /> },
-      { path: '/cobro/:mesaId', element: <CheckoutPage /> },
+      { element: <FloorGuard />, children: [
+        { path: '/mesas', element: <ProductPage service={<ServiceTablesPage />} tpv={<TablesPage />} /> },
+        { path: '/comandas', element: <ProductPage service={<ServiceRoundsPage />} tpv={<ComandasPage />} /> },
+        { path: '/comanda/:mesaId', element: <ProductPage service={<ServiceOrderPage />} tpv={<OrderPageV2 />} /> },
+      ] },
+      // Sala y cocina: el móvil impresora suele estar en cocina
+      { path: '/impresora', element: <ProductPage service={<PrinterPage />} /> },
+      { path: '/ticket/:pedidoId', element: <ProductPage tpv={<TicketPage />} /> },
+      { path: '/cobro/:mesaId', element: <ProductPage tpv={<CheckoutPage />} /> },
       { path: '/cocina', element: <KitchenPage /> },
 
       // Rutas solo para ADMIN
       {
         element: <AdminGuard />,
         children: [
-          { path: '/admin/carta', element: <MenuIngestPage /> },
+          { path: '/admin/carta', element: <ProductPage service={<ServiceMenuPage />} tpv={<MenuIngestPage />} /> },
           { path: '/configuracion', element: <SettingsPage /> },
-          { path: '/stats', element: <StatsDashboard /> },
+          { path: '/stats', element: <ProductPage tpv={<StatsDashboard />} /> },
           { path: '/usuarios', element: <UsersPage /> },
-          { path: '/historial', element: <OrderHistoryPage /> },
-          { path: '/gastos', element: <GastosPage /> },
-          { path: '/asistente', element: <IAChatPage /> },
+          { path: '/historial', element: <ProductPage tpv={<OrderHistoryPage />} /> },
+          { path: '/gastos', element: <ProductPage tpv={<GastosPage />} /> },
+          { path: '/asistente', element: <ProductPage tpv={<IAChatPage />} /> },
         ],
       },
     ],

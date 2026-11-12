@@ -33,7 +33,7 @@ class CategoriaResponse(BaseModel):
 class ItemMenuCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=200)
     descripcion: Optional[str] = None
-    precio: float = Field(..., gt=0)
+    precio: float = Field(..., ge=0)
     emoji: str = "🍽️"
     categoria_id: int
     disponible: bool = True
@@ -55,7 +55,7 @@ class ItemMenuResponse(BaseModel):
 class ItemMenuUpdate(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
-    precio: Optional[float] = Field(default=None, gt=0)
+    precio: Optional[float] = Field(default=None, ge=0)
     emoji: Optional[str] = None
     disponible: Optional[bool] = None
     categoria_id: Optional[int] = None

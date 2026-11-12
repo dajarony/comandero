@@ -59,7 +59,7 @@ export function CarritoSheet({ carrito, total, onClose, onAdd, onRemove, onUpdat
         )}
         <div className={styles.carritoTotal}><span>Total</span><span>{total.toFixed(2)}€</span></div>
         <button className={styles.marchBtnCarrito} onClick={onMarchar} disabled={enviando}>
-          {enviando ? '⏳ Enviando...' : `📋 ENVIAR PEDIDO — ${total.toFixed(2)}€`}
+           {enviando ? 'Guardando…' : `Guardar comanda · ${total.toFixed(2)} €`}
         </button>
       </div>
     </div>

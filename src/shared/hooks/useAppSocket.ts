@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useKitchenStore } from '@/features/kitchen/state/kitchenStore';
+import { useAuthStore } from '@/features/auth/state/authStore';
 
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 5000;
@@ -26,6 +27,7 @@ interface AppSocketMessage {
 
 export const useAppSocket = () => {
     const { removeOrder } = useKitchenStore();
+    const token = useAuthStore(state => state.token);
     const retriesRef = useRef(0);
     const socketRef = useRef<WebSocket | null>(null);
 
@@ -33,7 +35,6 @@ export const useAppSocket = () => {
         let retryId: number | undefined;
 
         const connect = () => {
-            const token = localStorage.getItem('comandero_token');
             if (!token || retriesRef.current >= MAX_RETRIES) return;
 
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -103,7 +104,10 @@ export const useAppSocket = () => {
         return () => {
             retriesRef.current = MAX_RETRIES;
             if (retryId) window.clearTimeout(retryId);
-            socketRef.current?.close();
+            if (socketRef.current) {
+                socketRef.current.onclose = null;
+                socketRef.current.close();
+            }
         };
-    }, [removeOrder]);
+    }, [removeOrder, token]);
 };

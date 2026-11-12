@@ -58,12 +58,13 @@ async def kitchen_websocket_endpoint(
 
         # 1. Validar sesión y extraer tenant
         payload = verificar_token(token)
-        restaurante_id = payload.get("restaurante_id")
+        tenant = payload.get("restaurante_id")
         
-        if not restaurante_id:
+        if not tenant:
             logger.warning("Intento de conexión WS sin restaurante_id en payload")
             await websocket.close(code=1008)
             return
+        restaurante_id = int(tenant)
 
         # 2. Registrar conexión en el manager global
         await socket_manager.connect(websocket, restaurante_id, "comandero-jwt" if protocol_token else None)

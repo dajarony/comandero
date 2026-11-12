@@ -20,6 +20,7 @@ Cambio: Implementación inicial de contratos de usuario.
 
 from pydantic import BaseModel, Field
 from enum import Enum
+from typing import Literal
 
 
 class RolUsuario(str, Enum):
@@ -47,6 +48,8 @@ class UsuarioResponse(BaseModel):
     email: str
     rol: str
     activo: bool = True
+    modo: Literal["COMANDERO", "TPV"] = "TPV"
+    restaurante_id: int | None = None
 
     model_config = {"from_attributes": True}
 

@@ -64,6 +64,9 @@ export function UserMenu() {
             </span>
           </div>
           <hr className={styles.divider} />
+          {usuario.modo === 'COMANDERO' && (
+            <button className={styles.logoutBtn} onClick={() => { setAbierto(false); navigate('/impresora'); }}>Impresora</button>
+          )}
           <button className={styles.logoutBtn} onClick={handleLogout}>
             🚪 Cerrar sesión
           </button>

@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from contratos.usuario import UsuarioLogin, UsuarioCreate, TokenResponse, UsuarioResponse, RegistroRestauranteCreate
 from contratos.respuesta import ApiResponse
-from logica.auth_service import login, registrar_usuario, registro_restaurante
+from logica.auth_service import login, perfil_usuario, registrar_usuario, registro_restaurante
 from seguridad.deps import get_current_user, require_admin
 from seguridad.rate_limit import check_rate_limit
 from modelos.usuario import Usuario
@@ -59,9 +59,9 @@ async def endpoint_registro_restaurante(datos: RegistroRestauranteCreate, db: As
 
 
 @router.get("/me", response_model=ApiResponse[UsuarioResponse])
-async def endpoint_me(usuario: Usuario = Depends(get_current_user)):
+async def endpoint_me(usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Devuelve datos del usuario autenticado."""
     return ApiResponse(
         success=True,
-        data=UsuarioResponse.model_validate(usuario),
+        data=await perfil_usuario(db, usuario),
     )

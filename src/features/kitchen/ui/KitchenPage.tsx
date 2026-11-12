@@ -8,15 +8,20 @@ import { useKitchenSocket } from '../hooks/useKitchenSocket';
 import { KitchenCard } from './KitchenCard';
 import styles from './KitchenPage.module.css';
 import { BottomNav } from '@/shared/components/BottomNav';
+import { UserMenu } from '@/shared/components/UserMenu';
+import { useAuthStore } from '@/features/auth/state/authStore';
 
 export const KitchenPage: React.FC = () => {
     const { orders, fetchActiveOrders, isConnected, isLoading } = useKitchenStore();
+    const service = useAuthStore(state => state.usuario?.modo === 'COMANDERO');
     
     // Activar conexión de tiempo real
     useKitchenSocket();
 
     useEffect(() => {
         fetchActiveOrders();
+        const interval = window.setInterval(fetchActiveOrders, 12_000);
+        return () => window.clearInterval(interval);
     }, [fetchActiveOrders]);
 
     // Fondo oscuro en body para evitar espacio blanco al hacer scroll
@@ -50,6 +55,7 @@ export const KitchenPage: React.FC = () => {
                   <div className={styles.orderCount}>
                       {orders.length} pedidos activos
                   </div>
+                   {service && <UserMenu />}
                 </div>
             </header>
 
@@ -67,7 +73,7 @@ export const KitchenPage: React.FC = () => {
                     ))
                 )}
             </main>
-            <BottomNav />
+            {!service && <BottomNav />}
         </div>
     );
 };

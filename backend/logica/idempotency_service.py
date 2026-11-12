@@ -84,3 +84,32 @@ async def _buscar_registro(
             IdempotencyRecord.idempotency_key == idempotency_key,
         )
     )
+
+
+async def ejecutar_ronda_idempotente(
+    db: AsyncSession, key: str, restaurante_id: int, operacion: Callable[[], Awaitable[T]],
+) -> tuple[T, bool]:
+    """Guarda la reserva, la ronda y su respuesta en una única transacción."""
+    key = key.strip()
+    if not key or len(key) > 128:
+        raise HTTPException(status_code=400, detail="X-Idempotency-Key inválida")
+
+    endpoint = "/comandero/rondas"
+    record = IdempotencyRecord(
+        restaurante_id=restaurante_id, idempotency_key=key, method="POST",
+        endpoint=endpoint, response_data=PENDING_RESPONSE,
+    )
+    try:
+        async with db.begin_nested():
+            db.add(record)
+            await db.flush()
+    except IntegrityError:
+        existing = await _buscar_registro(db, restaurante_id, key)
+        if existing and existing.endpoint == endpoint and existing.response_data != PENDING_RESPONSE:
+            return existing.response_data, False
+        raise HTTPException(status_code=409, detail="Clave de envío ya utilizada") from None
+
+    resultado = await operacion()
+    record.response_data = jsonable_encoder(resultado)
+    await db.commit()
+    return resultado, True

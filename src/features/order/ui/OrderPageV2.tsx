@@ -121,7 +121,7 @@ function OrderPageContent({ mesaId }: { mesaId: string }) {
       {s.carrito.length > 0 && !s.carritoVisible && (
         <div className={styles.fabContainer}>
           <button className={styles.marchBtn} onClick={s.handleMarchar} disabled={s.enviando}>
-            {s.enviando ? '⏳ Enviando...' : '📋 ENVIAR PEDIDO'}
+            {s.enviando ? 'Guardando…' : 'Guardar comanda'}
             <span className={styles.marchBtnTotal}>{s.total.toFixed(2)}€</span>
           </button>
         </div>

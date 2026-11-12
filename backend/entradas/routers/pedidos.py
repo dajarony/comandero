@@ -42,7 +42,7 @@ from logica.pedido_service import (
 )
 from logica.servicios.printer_service import generar_ticket_texto
 from logica.idempotency_service import ejecutar_idempotente
-from seguridad.deps import get_current_user
+from seguridad.deps import get_current_user, require_tpv
 from modelos.usuario import Usuario
 
 router = APIRouter()
@@ -53,7 +53,7 @@ async def endpoint_crear_pedido(
     datos: PedidoCreate,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Crea un pedido nuevo vinculado a una mesa."""
     pedido = await ejecutar_idempotente(
@@ -75,7 +75,7 @@ async def endpoint_historial(
     fecha_fin: date | None = Query(None),
     usuario_id: int | None = Query(None),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Obtiene el historial de pedidos cerrados."""
     pedidos = await listar_historial_pedidos(db, user.restaurante_id, fecha_inicio, fecha_fin, usuario_id)
@@ -122,7 +122,7 @@ async def endpoint_marchar(
     destino: Literal["COCINA", "BARRA"] = Query("COCINA", description="Destino: COCINA o BARRA"),
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Marca pedido como MARCHADO con destino."""
     pedido = await ejecutar_idempotente(
@@ -141,7 +141,7 @@ async def endpoint_retener(
     pedido_id: int,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Retiene pedido (ABIERTO → RETENIDO)."""
     pedido = await ejecutar_idempotente(
@@ -160,7 +160,7 @@ async def endpoint_liberar_pedido(
     pedido_id: int,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Libera pedido retenido (RETENIDO → ABIERTO)."""
     pedido = await ejecutar_idempotente(
@@ -180,7 +180,7 @@ async def endpoint_cerrar(
     datos: PedidoCerrar,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Marca pedido como CERRADO (completado) con propina opcional."""
     pedido = await ejecutar_idempotente(
@@ -219,7 +219,7 @@ async def endpoint_agregar_lineas(
     datos: LineasAdd,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Añade líneas a un pedido ABIERTO o RETENIDO (continuar persona)."""
     pedido = await ejecutar_idempotente(
@@ -239,7 +239,7 @@ async def endpoint_eliminar_linea(
     linea_id: int,
     idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Elimina una línea de un pedido ABIERTO o RETENIDO."""
     pedido = await ejecutar_idempotente(
@@ -257,7 +257,7 @@ async def endpoint_eliminar_linea(
 async def endpoint_ticket(
     pedido_id: int,
     db: AsyncSession = Depends(get_db),
-    user: Usuario = Depends(get_current_user),
+    user: Usuario = Depends(require_tpv),
 ):
     """Genera ticket texto plano 32 cols para impresora."""
     datos = await obtener_pedido_completo(db, pedido_id, user.restaurante_id)

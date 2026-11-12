@@ -1,8 +1,6 @@
 package com.dajarony.comandero;
 
 import android.os.Bundle;
-import android.view.View;
-import android.view.WindowManager;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -11,6 +9,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        registerPlugin(KitchenPrinterPlugin.class);
         super.onCreate(savedInstanceState);
         hideSystemBars();
     }

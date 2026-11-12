@@ -46,6 +46,7 @@ class Pedido(Base):
     metodo_pago: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     notas: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    impreso_en: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # Relaciones
     restaurante: Mapped["Restaurante"] = relationship("Restaurante", back_populates="pedidos")

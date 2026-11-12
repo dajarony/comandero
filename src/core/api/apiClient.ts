@@ -7,7 +7,7 @@
  * Salidas  : Promise<T> con datos desenvueltos
  */
 
-import { offlineStore, type JsonValue } from './offlineStore';
+import { offlineSession, offlineStore, type JsonValue } from './offlineStore';
 import { logger } from '../logger/logger';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -60,8 +60,10 @@ function createMutationOptions(method: 'POST' | 'PUT' | 'DELETE', body?: unknown
 async function request<T>(
     endpoint: string,
     options: RequestInit = {},
+    queueOffline = true,
 ): Promise<T> {
     const token = getToken();
+    const owner = offlineSession().id;
 
     const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -74,10 +76,11 @@ async function request<T>(
 
     const method = options.method || 'GET';
 
+    let networkFailed = false;
     try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
-            ...options,
-            headers,
+        const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers }).catch(error => {
+            networkFailed = error instanceof TypeError;
+            throw error;
         });
 
         // Auth expirado o no autorizado → redirect a login (solo si no estamos ya en /login)
@@ -103,32 +106,28 @@ async function request<T>(
 
         // Cachear las respuestas GET exitosas para usarlas si se cae el WiFi
         if (method === 'GET') {
-            await offlineStore.setCacheData(endpoint, responseData);
+            await offlineStore.setCacheData(endpoint, responseData, owner);
         }
 
         return responseData as T;
 
     } catch (error: unknown) {
-        // TypeError ocurre cuando falla el fetch por red (no hay conexión / CORS)
-        // NO usamos navigator.onLine porque en Android Capacitor siempre reporta false
-        const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
-
-        if (isNetworkError) {
+        if (networkFailed) {
             logger.warn(`Conexión fallida intentando ${method} ${endpoint}. Fallback a Offline Store.`);
 
-            if (method === 'GET') {
+            if (method === 'GET' && queueOffline) {
                 // Modo Lectura: Recuperar de caché
-                const cachedData = await offlineStore.getCacheData<T>(endpoint);
+                const cachedData = await offlineStore.getCacheData<T>(endpoint, owner);
                 if (cachedData) {
                      logger.info(`Devolviendo caché para ${endpoint}`);
                      return cachedData;
                 }
                 throw new Error('Sin conexión y sin datos en caché para mostrar.');
-            } else {
+            } else if (queueOffline) {
                 // Modo Escritura: Guardar en Outbox para enviar más tarde
                 const parsedBody = parseRequestBody(options.body);
                 const idempotencyKey = headers['X-Idempotency-Key'] || crypto.randomUUID();
-                const queuedRequest = await offlineStore.enqueueRequest(method, endpoint, parsedBody, idempotencyKey);
+                const queuedRequest = await offlineStore.enqueueRequest(method, endpoint, parsedBody, idempotencyKey, owner);
                 
                 // Retornar éxito optimista para que la UI no se bloquee ni muestre error
                 // simulamos un ID temporal si es necesario para crear localmente
@@ -138,7 +137,7 @@ async function request<T>(
                     id: `temp-${queuedRequest.id}`,
                     outboxId: queuedRequest.id
                 } as unknown as T;
-            }
+            } else throw new Error('Sin conexión. Vuelve a intentarlo cuando se recupere.');
         }
 
         // Si es otro tipo de error (ej. 400 Bad request), lo lanzamos normal
@@ -148,13 +147,14 @@ async function request<T>(
 
 /** Métodos del cliente API */
 export const apiClient = {
-    get: <T>(endpoint: string) => request<T>(endpoint),
+    /** offline=false: sin conexión lanza error en vez de devolver la copia en caché. */
+    get: <T>(endpoint: string, offline = true) => request<T>(endpoint, {}, offline),
 
-    post: <T>(endpoint: string, body?: unknown) =>
-        request<T>(endpoint, createMutationOptions('POST', body)),
+    post: <T>(endpoint: string, body?: unknown, queueOffline = true) =>
+        request<T>(endpoint, createMutationOptions('POST', body), queueOffline),
 
-    put: <T>(endpoint: string, body?: unknown) =>
-        request<T>(endpoint, createMutationOptions('PUT', body)),
+    put: <T>(endpoint: string, body?: unknown, queueOffline = true) =>
+        request<T>(endpoint, createMutationOptions('PUT', body), queueOffline),
 
     delete: <T>(endpoint: string) =>
         request<T>(endpoint, createMutationOptions('DELETE')),

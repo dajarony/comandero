@@ -1,8 +1,25 @@
 # Comandero Digital
 
-TPV movil y comandero digital para restaurantes, bares y cafeterias. La aplicacion permite gestionar mesas, tomar comandas por persona, enviar pedidos a cocina en tiempo real, cobrar tickets, trabajar con tolerancia a cortes de red y administrar usuarios, carta, gastos, estadisticas e IA.
+Comandero gratuito para restaurantes, bares y cafeterías. Las nuevas altas incluyen cuatro mesas y una carta editable de ejemplo. Desde la mesa se toma la comanda, se envía cada ronda a cocina y se cierra el servicio sin registrar un cobro. Las cuentas existentes conservan el modo TPV.
 
 Repositorio principal: [github.com/dajarony/comandero](https://github.com/dajarony/comandero)
+
+## Primer servicio con Comandero
+
+1. Crea una cuenta desde **Crear cuenta gratis**. Edita los productos en **Ajustes → Gestión de carta** y añade las mesas que necesites desde Ajustes.
+2. Abre una mesa, añade productos y usa **Revisar** para incluir notas. Cada toque en **Enviar a cocina** confirma una ronda. En **Comandas** puedes consultar las rondas y cerrar la mesa cuando termine el servicio.
+3. Abre **Cocina** en otro dispositivo del local. Si el móvil de sala pierde conexión, las rondas pendientes quedan guardadas en ese móvil. Se reintentan al volver la conexión. Los envíos rechazados se muestran en Comandas para revisión.
+
+### Impresora de cocina en Android
+
+Un único Android en cocina imprime las rondas de todo el local, también las que los camareros toman desde la web. Los móviles de sala no imprimen.
+
+- Conecta ese móvil y una térmica de red compatible con ESC/POS por TCP 9100 a la misma red local. En **Ajustes → Impresora** (o en el menú de usuario, también con la cuenta de cocina), busca dispositivos anunciados por DNS-SD o escribe la IP de la impresora.
+- Selecciona el ancho, imprime una prueba y guarda la impresora si sale bien. Después pulsa **Usar este móvil como impresora de cocina**. Solo un móvil por local puede tenerlo activo: si otro ya lo tiene, la app pide confirmación y el anterior deja de imprimir y lo avisa.
+- Mientras está activo, una barra fija indica que es la impresora de cocina y si está conectada, y la pantalla no se apaga. Déjalo con la app abierta: Android pausa las apps en segundo plano.
+- Cada ronda llega por WebSocket. Al conectar, al reconectar, al abrir la app y cada 20 s se piden además al servidor las que aún no han salido, así que una ronda enviada sin conexión se imprime al volver. Ninguna sale dos veces: el móvil la recuerda en cuanto la imprime y el servidor la marca como impresa. Solo se imprimen las rondas llegadas después de activar el móvil, y no las de mesas ya cerradas.
+- Si la impresora falla, la barra se pone en rojo, se avisa en pantalla y se reintenta sola. En **Impresora** hay **Reintentar ahora** y **Reimprimir** para las últimas comandas.
+- **Mostrar QR** en un móvil configurado y **Escanear QR** en otro copian la dirección, el nombre y el ancho del papel; sirve para preparar un móvil de repuesto.
 
 ## Que Incluye
 
@@ -160,6 +177,8 @@ npm run build
 cd backend
 py -m compileall entradas logica modelos seguridad
 ```
+
+Para comprobar el envío, reintentos simultáneos y cierre de mesa con una base PostgreSQL de pruebas, apunta `DATABASE_URL` y `COMANDERO_TEST_DATABASE_URL` a esa misma base y ejecuta `pytest` desde `backend`.
 
 ## Despliegue
 

@@ -30,6 +30,7 @@ class PedidoEstado(str, Enum):
     MARCHADO = "MARCHADO"
     LISTO = "LISTO"
     CERRADO = "CERRADO"
+    FINALIZADO = "FINALIZADO"
 
 
 class LineaPedidoCreate(BaseModel):

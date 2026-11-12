@@ -14,6 +14,9 @@ export const tablesApi = {
   fetchMesas: (): Promise<Mesa[]> =>
     apiClient.get<Mesa[]>('/mesas'),
 
+  fetchMesa: (mesaId: number): Promise<Mesa> =>
+    apiClient.get<Mesa>(`/mesas/${mesaId}`),
+
   /** Abrir mesa con comensales (backend espera query param) */
   abrirMesa: (mesaId: number, comensales: number): Promise<Mesa> =>
     apiClient.post<Mesa>(`/mesas/${mesaId}/abrir?comensales=${comensales}`),

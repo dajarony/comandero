@@ -26,9 +26,15 @@ from contratos.usuario import UsuarioCreate, UsuarioResponse, TokenResponse, Reg
 from seguridad.jwt_manager import crear_token
 from seguridad.excepciones import AppException, AuthException
 from seguridad.logger import obtener_logger
+from logica.comandero_service import preparar_local
 
 logger = obtener_logger("auth_service")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+async def perfil_usuario(db: AsyncSession, usuario: Usuario) -> UsuarioResponse:
+    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == usuario.restaurante_id))
+    return UsuarioResponse.model_validate(usuario).model_copy(update={"modo": modo or "TPV"})
 
 
 async def _email_ya_existe(db: AsyncSession, email: str) -> bool:
@@ -61,7 +67,7 @@ async def registrar_usuario(
     await db.refresh(nuevo)
 
     logger.info(f"Usuario registrado: {nuevo.email} (rol={nuevo.rol}, restaurante={nuevo.restaurante_id})")
-    return UsuarioResponse.model_validate(nuevo)
+    return await perfil_usuario(db, nuevo)
 
 
 async def login(db: AsyncSession, email: str, password: str) -> TokenResponse:
@@ -84,7 +90,7 @@ async def login(db: AsyncSession, email: str, password: str) -> TokenResponse:
 
     return TokenResponse(
         access_token=token,
-        usuario=UsuarioResponse.model_validate(usuario),
+        usuario=await perfil_usuario(db, usuario),
     )
 
 
@@ -94,7 +100,7 @@ async def registro_restaurante(db: AsyncSession, datos: RegistroRestauranteCreat
     if await _email_ya_existe(db, email):
         raise AppException("El email ya estÃ¡ registrado", status_code=409)
 
-    restaurante = Restaurante(nombre=datos.nombre_restaurante)
+    restaurante = Restaurante(nombre=datos.nombre_restaurante, modo="COMANDERO")
     db.add(restaurante)
     await db.flush()  # obtiene restaurante.id sin cerrar transacción
 
@@ -106,9 +112,10 @@ async def registro_restaurante(db: AsyncSession, datos: RegistroRestauranteCreat
         restaurante_id=restaurante.id,
     )
     db.add(admin)
+    await preparar_local(db, restaurante.id)
     await db.commit()
     await db.refresh(admin)
 
     token = crear_token(data={"sub": str(admin.id), "rol": admin.rol, "restaurante_id": str(restaurante.id)})
     logger.info(f"Restaurante '{restaurante.nombre}' registrado (id={restaurante.id}, admin={admin.email})")
-    return TokenResponse(access_token=token, usuario=UsuarioResponse.model_validate(admin))
+    return TokenResponse(access_token=token, usuario=await perfil_usuario(db, admin))
