@@ -10,6 +10,8 @@ export interface UsuarioResponse {
   email: string;
   rol: 'ADMIN' | 'CAMARERO' | 'COCINA';
   activo: boolean;
+  modo?: 'COMANDERO' | 'TPV';
+  restaurante_id?: number | null;
 }
 
 export interface TokenResponse {

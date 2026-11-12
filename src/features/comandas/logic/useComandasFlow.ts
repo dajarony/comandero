@@ -72,9 +72,9 @@ export function useComandasFlow(): ComandasFlowResult {
   }, []);
 
   useEffect(() => {
-    load();
+    const initial = window.setTimeout(load, 0);
     const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
+    return () => { window.clearTimeout(initial); clearInterval(interval); };
   }, [load]);
 
   const handleTapCobrar = (mesaId: number) => navigate(`/cobro/${mesaId}`);
@@ -84,7 +84,7 @@ export function useComandasFlow(): ComandasFlowResult {
 
   const handleMarcharPedido = async (pedidoId: number) => {
     try { await orderApi.marcharPedido(pedidoId); }
-    catch (err) { setError(err instanceof Error ? err.message : 'Error al marchar pedido'); }
+    catch (err) { setError(err instanceof Error ? err.message : 'Error al marchar pedido'); return; }
     await load();
     try {
       const texto = await orderApi.fetchTicketTexto(pedidoId);

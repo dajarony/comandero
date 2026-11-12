@@ -45,27 +45,34 @@ export function useOrderPageState(mesaId: string) {
   useEffect(() => { localStorage.setItem(FAV_KEY, JSON.stringify(favoritos)); }, [favoritos]);
 
   useEffect(() => {
-    setErrorMenu(null);
-    orderApi.fetchCategorias()
-      .then(setCategorias)
-      .catch(() => setErrorMenu('Error al cargar el menú.'))
-      .finally(() => setLoadingCats(false));
-    orderApi.fetchItems()
-      .then(setTodosItems)
-      .catch(() => setErrorMenu('Error al cargar artículos.'));
-    orderApi.pedidosPorMesa(Number(mesaId))
-      .then(p => setTienePedidosActivos(p.length > 0))
-      .catch(() => setTienePedidosActivos(false));
+    const initial = window.setTimeout(() => {
+      setErrorMenu(null);
+      orderApi.fetchCategorias()
+        .then(setCategorias)
+        .catch(() => setErrorMenu('Error al cargar el menú.'))
+        .finally(() => setLoadingCats(false));
+      orderApi.fetchItems()
+        .then(setTodosItems)
+        .catch(() => setErrorMenu('Error al cargar artículos.'));
+      orderApi.pedidosPorMesa(Number(mesaId))
+        .then(p => setTienePedidosActivos(p.length > 0))
+        .catch(() => setTienePedidosActivos(false));
+    }, 0);
+    return () => window.clearTimeout(initial);
   }, [mesaId]);
 
   useEffect(() => {
     if (!catActiva || catActiva.id === -1) return;
-    setLoadingItems(true);
-    setErrorMenu(null);
-    orderApi.fetchItems(catActiva.id)
-      .then(setItems)
-      .catch(() => setErrorMenu('Error al cargar esta categoría.'))
-      .finally(() => setLoadingItems(false));
+    let active = true;
+    const initial = window.setTimeout(() => {
+      setLoadingItems(true);
+      setErrorMenu(null);
+      orderApi.fetchItems(catActiva.id)
+        .then(items => { if (active) setItems(items); })
+        .catch(() => { if (active) setErrorMenu('Error al cargar esta categoría.'); })
+        .finally(() => { if (active) setLoadingItems(false); });
+    }, 0);
+    return () => { active = false; window.clearTimeout(initial); };
   }, [catActiva]);
 
   // Categorías filtradas por grupo activo
@@ -130,17 +137,19 @@ export function useOrderPageState(mesaId: string) {
     setEnviando(true);
     const lineas: LineaPedidoCreate[] = carrito.map(l => ({ item_menu_id: l.item.id, cantidad: l.cantidad, nota: l.nota }));
     try {
+      let pedido;
       if (pedidoIdContinuar) {
         // Añadir a persona existente
-        await orderApi.agregarLineas(pedidoIdContinuar, lineas);
+        pedido = await orderApi.agregarLineas(pedidoIdContinuar, lineas);
       } else {
         // Nueva persona
         await tablesApi.abrirMesa(Number(mesaId), 1).catch(() => {});
-        await orderApi.crearPedido({ mesa_id: Number(mesaId), lineas });
+        pedido = await orderApi.crearPedido({ mesa_id: Number(mesaId), lineas });
       }
       localStorage.setItem(`ultima_ronda_${mesaId}`, JSON.stringify(carrito));
       setUltimaRonda(carrito);
-      toast.success('¡Pedido enviado a cocina!', { icon: '🔥' });
+      if ('_offlineQueued' in pedido) toast('Comanda guardada en este móvil. Pendiente de sincronizar.');
+      else toast.success('Comanda guardada. Pulsa «Marchar» para enviarla a cocina.');
       navigate('/comandas', { replace: true });
     } catch {
       toast.error('No se pudo enviar el pedido. Se intentará reconectar.');

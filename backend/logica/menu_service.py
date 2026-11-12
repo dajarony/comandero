@@ -101,6 +101,13 @@ async def actualizar_item(db: AsyncSession, item_id: int, datos: ItemMenuUpdate,
     if not item:
         raise NotFoundException("MenuItem", item_id)
 
+    if datos.categoria_id is not None:
+        cat = await db.scalar(select(Categoria).where(
+            Categoria.id == datos.categoria_id, Categoria.restaurante_id == restaurante_id,
+        ))
+        if not cat:
+            raise NotFoundException("Categoría", datos.categoria_id)
+
     for field, value in datos.model_dump(exclude_unset=True).items():
         setattr(item, field, value)
 

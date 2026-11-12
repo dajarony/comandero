@@ -18,7 +18,7 @@ Cambio: Implementación inicial de contratos de mesa.
 ═══════════════════════════════════════════════════════════
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from enum import Enum
 
@@ -37,6 +37,12 @@ class MesaResponse(BaseModel):
     hora_apertura: Optional[str] = None
     total_cuenta: float = 0.0
     nota: Optional[str] = None
+    turno: int = Field(default=0, ge=0)
+
+    @field_validator("turno", mode="before")
+    @classmethod
+    def turno_inicial(cls, value: int | None) -> int:
+        return 0 if value is None else value
 
     model_config = {"from_attributes": True}
 

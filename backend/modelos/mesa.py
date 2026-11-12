@@ -42,6 +42,7 @@ class Mesa(Base):
     hora_apertura: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     total_cuenta: Mapped[float] = mapped_column(Float, default=0.0)
     nota: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
+    turno: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
     # Relaciones
     restaurante: Mapped["Restaurante"] = relationship("Restaurante", back_populates="mesas")

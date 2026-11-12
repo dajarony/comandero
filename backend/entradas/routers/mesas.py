@@ -30,7 +30,7 @@ from logica.mesa_service import (
     listar_mesas, obtener_mesa, abrir_mesa, liberar_mesa,
     cambiar_estado, actualizar_nota_mesa,
 )
-from seguridad.deps import get_current_user
+from seguridad.deps import get_current_user, require_tpv
 from modelos.usuario import Usuario
 
 router = APIRouter()
@@ -62,7 +62,7 @@ async def endpoint_cambiar_estado(
     mesa_id: int,
     datos: MesaCambioEstado,
     db: AsyncSession = Depends(get_db),
-    usuario: Usuario = Depends(get_current_user),
+    usuario: Usuario = Depends(require_tpv),
 ):
     """Cambia el estado de una mesa."""
     mesa = await cambiar_estado(db, mesa_id, datos, usuario.restaurante_id)
@@ -86,7 +86,7 @@ async def endpoint_abrir_mesa(
     mesa_id: int,
     comensales: int = Query(..., ge=1, description="Número de comensales"),
     db: AsyncSession = Depends(get_db),
-    usuario: Usuario = Depends(get_current_user),
+    usuario: Usuario = Depends(require_tpv),
 ):
     """Abre una mesa: marca OCUPADA y registra comensales."""
     mesa = await abrir_mesa(db, mesa_id, comensales, usuario.restaurante_id)
@@ -97,7 +97,7 @@ async def endpoint_abrir_mesa(
 async def endpoint_liberar_mesa(
     mesa_id: int,
     db: AsyncSession = Depends(get_db),
-    usuario: Usuario = Depends(get_current_user),
+    usuario: Usuario = Depends(require_tpv),
 ):
     """Libera una mesa: resetea estado y datos."""
     mesa = await liberar_mesa(db, mesa_id, usuario.restaurante_id)

@@ -9,14 +9,16 @@ import type { PedidoApi } from '@/features/order/api/orderApi';
 interface KitchenSocketMessage {
     event: string;
     pedido?: PedidoApi;
+    mesa_id?: number;
 }
 
 export const useKitchenSocket = () => {
-    const { addOrder, setConnected } = useKitchenStore();
+    const { addOrder, removeOrder, removeTable, setConnected, fetchActiveOrders } = useKitchenStore();
 
     useEffect(() => {
         let socket: WebSocket | undefined;
         let retryId: number | undefined;
+        let disposed = false;
 
         const connect = () => {
             const token = localStorage.getItem('comandero_token');
@@ -30,6 +32,7 @@ export const useKitchenSocket = () => {
             socket.onopen = () => {
                 console.log('KDS WebSocket connected');
                 setConnected(true);
+                void fetchActiveOrders();
             };
 
             socket.onmessage = (event) => {
@@ -43,6 +46,10 @@ export const useKitchenSocket = () => {
                         audio.play().catch(error => {
                             console.warn('Playback blocked by browser:', error);
                         });
+                    } else if (payload.event === 'ORDER_READY' && payload.pedido) {
+                        removeOrder(payload.pedido.id);
+                    } else if (payload.event === 'TABLE_CLOSED' && typeof payload.mesa_id === 'number') {
+                        removeTable(payload.mesa_id);
                     }
                 } catch (error) {
                     console.error('Error parsing WS message:', error);
@@ -50,6 +57,7 @@ export const useKitchenSocket = () => {
             };
 
             socket.onclose = () => {
+                if (disposed) return;
                 console.log('KDS WebSocket disconnected');
                 setConnected(false);
                 retryId = window.setTimeout(connect, 5000);
@@ -64,8 +72,9 @@ export const useKitchenSocket = () => {
         connect();
 
         return () => {
+            disposed = true;
             if (retryId) window.clearTimeout(retryId);
             socket?.close();
         };
-    }, [addOrder, setConnected]);
+    }, [addOrder, fetchActiveOrders, removeOrder, removeTable, setConnected]);
 };

@@ -1,8 +1,20 @@
 # Comandero Digital
 
-TPV movil y comandero digital para restaurantes, bares y cafeterias. La aplicacion permite gestionar mesas, tomar comandas por persona, enviar pedidos a cocina en tiempo real, cobrar tickets, trabajar con tolerancia a cortes de red y administrar usuarios, carta, gastos, estadisticas e IA.
+Comandero gratuito para restaurantes, bares y cafeterías. Las nuevas altas incluyen cuatro mesas y una carta editable de ejemplo. Desde la mesa se toma la comanda, se envía cada ronda a cocina y se cierra el servicio sin registrar un cobro. Las cuentas existentes conservan el modo TPV.
 
 Repositorio principal: [github.com/dajarony/comandero](https://github.com/dajarony/comandero)
+
+## Primer servicio con Comandero
+
+1. Crea una cuenta desde **Crear cuenta gratis**. Edita los productos en **Ajustes → Gestión de carta** y añade las mesas que necesites desde Ajustes.
+2. Abre una mesa, añade productos y usa **Revisar** para incluir notas. Cada toque en **Enviar a cocina** confirma una ronda. En **Comandas** puedes consultar las rondas y cerrar la mesa cuando termine el servicio.
+3. Abre **Cocina** en otro dispositivo del local. Si el móvil de sala pierde conexión, las rondas pendientes quedan guardadas en ese móvil. Se reintentan al volver la conexión. Los envíos rechazados se muestran en Comandas para revisión.
+
+### Impresora de cocina en Android
+
+- Conecta el móvil y una térmica de red compatible con ESC/POS por TCP 9100 a la misma red local. En **Impresora**, busca dispositivos anunciados por DNS-SD o escribe la IP de la impresora.
+- Selecciona el ancho, imprime una prueba y guarda la impresora si sale bien. Los siguientes envíos confirmados de ese móvil se mandan automáticamente a la térmica. Si hace falta repetir un envío, usa **Imprimir copia** desde Comandas.
+- Usa **Mostrar QR** en el móvil configurado y **Escanear QR** en el otro. El QR contiene la dirección, el nombre y el ancho del papel. Desde un navegador está disponible la pantalla de cocina.
 
 ## Que Incluye
 
@@ -160,6 +172,8 @@ npm run build
 cd backend
 py -m compileall entradas logica modelos seguridad
 ```
+
+Para comprobar el envío, reintentos simultáneos y cierre de mesa con una base PostgreSQL de pruebas, apunta `DATABASE_URL` y `COMANDERO_TEST_DATABASE_URL` a esa misma base y ejecuta `pytest` desde `backend`.
 
 ## Despliegue
 

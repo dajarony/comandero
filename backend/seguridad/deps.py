@@ -26,6 +26,7 @@ from seguridad.jwt_manager import verificar_token
 from seguridad.excepciones import AuthException, ForbiddenException
 from seguridad.logger import obtener_logger
 from modelos.usuario import Usuario
+from modelos.restaurante import Restaurante
 
 logger = obtener_logger("deps")
 security_scheme = HTTPBearer()
@@ -62,4 +63,22 @@ async def require_admin(
     """Exige que el usuario tenga rol ADMIN."""
     if usuario.rol != "ADMIN":
         raise ForbiddenException("Se requiere rol ADMIN")
+    return usuario
+
+
+async def require_tpv(
+    usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+) -> Usuario:
+    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == usuario.restaurante_id))
+    if modo != "TPV":
+        raise ForbiddenException("Esta función requiere el modo TPV")
+    return usuario
+
+
+async def require_comandero(
+    usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+) -> Usuario:
+    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == usuario.restaurante_id))
+    if modo != "COMANDERO" or usuario.rol not in ("ADMIN", "CAMARERO"):
+        raise ForbiddenException("Esta función requiere acceso de sala en modo Comandero")
     return usuario

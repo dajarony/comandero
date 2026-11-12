@@ -14,6 +14,7 @@ export interface Mesa {
   hora_apertura: string | null;
   nota?: string | null;
   total_cuenta: number;
+  turno: number;
 }
 
 export type FiltroMesa = 'TODAS' | 'LIBRES' | 'OCUPADAS' | 'PENDIENTE_COBRO';

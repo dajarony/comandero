@@ -9,10 +9,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsFlow } from '../logic/useSettingsFlow';
 import { BottomNav } from '@/shared/components/BottomNav';
+import { useAuthStore } from '@/features/auth/state/authStore';
+import { AddTable } from '@/features/comandero/AddTable';
+import serviceStyles from '@/features/comandero/service.module.css';
 import styles from './SettingsPage.module.css';
 
 export function SettingsPage() {
   const navigate = useNavigate();
+  const service = useAuthStore(state => state.usuario?.modo === 'COMANDERO');
   const { nombre, setNombre, loading, saving, error, handleSave } = useSettingsFlow();
 
   return (
@@ -56,7 +60,7 @@ export function SettingsPage() {
           <span>🍽️</span>
           <div>
             <p className={styles.linkTitle}>Gestión de carta</p>
-            <p className={styles.linkDesc}>Editar menú, categorías y precios</p>
+            <p className={styles.linkDesc}>{service ? 'Editar productos y categorías' : 'Editar menú, categorías y precios'}</p>
           </div>
           <span className={styles.arrow}>›</span>
         </button>
@@ -68,6 +72,9 @@ export function SettingsPage() {
           </div>
           <span className={styles.arrow}>›</span>
         </button>
+        {service ? <button className={styles.linkBtn} onClick={() => navigate('/impresora')}>
+          <span>🖨️</span><div><p className={styles.linkTitle}>Impresora de cocina</p><p className={styles.linkDesc}>Conectar y compartir por QR</p></div><span className={styles.arrow}>›</span>
+        </button> : <>
         <button className={styles.linkBtn} onClick={() => navigate('/stats')}>
           <span>📊</span>
           <div>
@@ -92,8 +99,9 @@ export function SettingsPage() {
           </div>
           <span className={styles.arrow}>›</span>
         </button>
+        </>}
       </div>
-      <BottomNav />
+      {service ? <div className={serviceStyles.page} style={{ minHeight: 'auto', paddingInline: 0 }}><AddTable /></div> : <BottomNav />}
     </div>
   );
 }

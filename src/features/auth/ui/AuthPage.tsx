@@ -22,13 +22,13 @@ export function AuthPage() {
         <div className={styles.logoArea}>
           <div className={styles.logoIcon}>🍴</div>
           <h1 className={styles.logoTitle}>Comandero</h1>
-          <p className={styles.logoSubtitle}>Digital TPV System</p>
+          <p className={styles.logoSubtitle}>Comandas para sala y cocina</p>
         </div>
 
         {/* Card */}
         <form className={styles.card} onSubmit={handleLogin}>
           <h2 className={styles.cardTitle}>Iniciar Sesión</h2>
-          <p className={styles.cardSubtitle}>Accede a tu cuenta de camarero</p>
+          <p className={styles.cardSubtitle}>Accede a tu local</p>
 
           {error && (
             <div className={styles.error}>
@@ -89,7 +89,7 @@ export function AuthPage() {
           </button>
 
           <p className={styles.hint}>
-            ¿Restaurante nuevo? <Link to="/registro" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>Crear cuenta</Link>
+            ¿Restaurante nuevo? <Link to="/registro" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>Crear cuenta gratis</Link>
           </p>
         </form>
       </div>

@@ -98,12 +98,14 @@ export function BottomNav() {
   const ocultarNav = RUTAS_SIN_NAV.some(r => location.pathname.startsWith(r));
   if (ocultarNav) return null;
 
-  const filteredTabs = allTabs.filter(tab => usuario?.rol && tab.roles.includes(usuario.rol));
+  const service = usuario?.modo === 'COMANDERO';
+  const filteredTabs = allTabs.filter(tab => usuario && (tab.roles.includes(usuario.rol) ||
+    (service && tab.path === '/cocina' && usuario.rol === 'CAMARERO')) && (!service || tab.path !== '/asistente'));
 
   return (
     <>
-      <div className={`${styles.navSpacer} ${oculta ? styles.navSpacerHidden : ''}`} />
-      <nav className={`${styles.bottomNav} ${oculta ? styles.bottomNavHidden : ''}`}>
+      <div className={`${styles.navSpacer} ${oculta && !service ? styles.navSpacerHidden : ''}`} />
+      <nav className={`${styles.bottomNav} ${oculta && !service ? styles.bottomNavHidden : ''}`}>
         {filteredTabs.map(tab => {
           const isActive = location.pathname === tab.path;
           return (
@@ -111,6 +113,7 @@ export function BottomNav() {
               key={tab.path}
               className={`${styles.navItem} ${isActive ? styles.navActive : ''}`}
               onClick={() => navigate(tab.path)}
+                aria-current={isActive ? 'page' : undefined}
             >
               <tab.Icon />
               <span className={styles.navLabel}>{tab.label}</span>

@@ -15,9 +15,13 @@ def test_mesas_router_routes():
 
 
 def test_pedidos_router_routes():
-    """Pedidos router should have 8 routes (6 + retener + liberar)."""
+    """Las rutas de TPV y cocina siguen disponibles junto al nuevo comandero."""
     from entradas.routers.pedidos import router
-    assert len(router.routes) == 8
+    paths = {route.path: route.methods for route in router.routes}
+    assert paths[""] == {"POST"}
+    assert paths["/cocina/pendientes"] == {"GET"}
+    for action in ("marchar", "retener", "liberar", "cerrar", "completar"):
+        assert paths[f"/{{pedido_id}}/{action}"] == {"PUT"}
 
 
 def test_auth_router_routes():

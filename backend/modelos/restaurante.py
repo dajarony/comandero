@@ -29,6 +29,7 @@ class Restaurante(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
+    modo: Mapped[str] = mapped_column(String(12), default="TPV", server_default="TPV")
     activo: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 

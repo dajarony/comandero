@@ -12,11 +12,11 @@ import type { TokenResponse, LoginPayload, UsuarioResponse, RegistroRestauranteP
 export const authApi = {
   /** Login → POST /auth/login → devuelve JWT + usuario */
   login: (payload: LoginPayload): Promise<TokenResponse> =>
-    apiClient.post<TokenResponse>('/auth/login', payload),
+    apiClient.post<TokenResponse>('/auth/login', payload, false),
 
   /** Registro restaurante nuevo → POST /auth/registro-restaurante → JWT */
   registrarRestaurante: (payload: RegistroRestaurantePayload): Promise<TokenResponse> =>
-    apiClient.post<TokenResponse>('/auth/registro-restaurante', payload),
+    apiClient.post<TokenResponse>('/auth/registro-restaurante', payload, false),
 
   /** Mi perfil → GET /auth/me */
   getMe: (): Promise<UsuarioResponse> =>

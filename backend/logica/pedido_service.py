@@ -29,9 +29,12 @@ from seguridad.socket_manager import socket_manager
 logger = obtener_logger("pedido_service")
 
 
-async def crear_pedido(db: AsyncSession, datos: PedidoCreate, usuario_id: int, restaurante_id: int) -> PedidoResponse:
+async def crear_pedido(
+    db: AsyncSession, datos: PedidoCreate, usuario_id: int, restaurante_id: int,
+    *, mesa_servicio: Mesa | None = None,
+) -> PedidoResponse:
     """Crea un pedido con sus líneas, validando mesa e items."""
-    mesa = await db.scalar(select(Mesa).where(Mesa.id == datos.mesa_id, Mesa.restaurante_id == restaurante_id))
+    mesa = mesa_servicio or await db.scalar(select(Mesa).where(Mesa.id == datos.mesa_id, Mesa.restaurante_id == restaurante_id))
     if not mesa:
         raise NotFoundException("Mesa", datos.mesa_id)
 
@@ -62,12 +65,18 @@ async def crear_pedido(db: AsyncSession, datos: PedidoCreate, usuario_id: int, r
         total=round(total, 2),
         notas=datos.notas,
     )
+    if mesa_servicio is not None:
+        pedido.estado = "MARCHADO"
+        pedido.destino = "COCINA"
     pedido.lineas = lineas_db
     db.add(pedido)
 
     mesa.total_cuenta = round(mesa.total_cuenta + total, 2)
-    await db.commit()
-    await db.refresh(pedido)
+    if mesa_servicio is None:
+        await db.commit()
+        await db.refresh(pedido)
+    else:
+        await db.flush()
 
     logger.info(f"Pedido #{pedido.id} creado en mesa {mesa.numero} ({total}€) (restaurante={restaurante_id})")
     return await pedido_a_response(db, pedido.id, restaurante_id)
@@ -115,7 +124,7 @@ async def marchar_pedido(db: AsyncSession, pedido_id: int, restaurante_id: int, 
     # Notificar a la cocina vía WebSocket
     await socket_manager.broadcast(restaurante_id, {
         "event": "ORDER_MARCHADO",
-        "pedido": response.model_dump() if hasattr(response, "model_dump") else response
+        "pedido": response.model_dump(mode="json")
     })
     
     logger.info(f"Pedido #{pedido_id} MARCHADO → {destino} (Notificado a KDS)")
@@ -247,7 +256,9 @@ async def listar_pedidos_cocina(db: AsyncSession, restaurante_id: int) -> list[P
 
 async def completar_pedido_cocina(db: AsyncSession, pedido_id: int, restaurante_id: int) -> PedidoResponse:
     """Marca un pedido de cocina como LISTO (LISTO_PARA_ENTREGAR)."""
-    pedido = await db.scalar(select(Pedido).where(Pedido.id == pedido_id, Pedido.restaurante_id == restaurante_id))
+    pedido = await db.scalar(select(Pedido).where(
+        Pedido.id == pedido_id, Pedido.restaurante_id == restaurante_id,
+    ).with_for_update())
     if not pedido:
         raise NotFoundException("Pedido", pedido_id)
     if pedido.estado != "MARCHADO":
@@ -261,7 +272,8 @@ async def completar_pedido_cocina(db: AsyncSession, pedido_id: int, restaurante_
     # Notificar a los camareros (TPV) que el pedido está listo
     await socket_manager.broadcast(restaurante_id, {
         "event": "ORDER_READY",
-        "pedido": response.model_dump() if hasattr(response, "model_dump") else response
+        "pedido_id": pedido_id,
+        "pedido": response.model_dump(mode="json")
     })
     
     logger.info(f"Pedido #{pedido_id} marcado como LISTO (Notificado a TPV)")

@@ -22,7 +22,7 @@ Cambio: Añadidos routers gastos e IA (GPT-4o).
 ═══════════════════════════════════════════════════════════
 """
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -30,7 +30,8 @@ from sqlalchemy import text
 from config import get_settings
 from database import engine, AsyncSessionLocal
 from modelos import Base
-from entradas.routers import auth, mesas, menu, pedidos, stats, ws_kitchen, usuarios, restaurante, gastos, ia
+from entradas.routers import auth, comandero, mesas, menu, pedidos, stats, ws_kitchen, usuarios, restaurante, gastos, ia
+from seguridad.deps import require_tpv
 from seguridad.excepciones import AppException, global_exception_handler
 from seguridad.logger import obtener_logger
 from seeds.seed_data import seed_all
@@ -65,12 +66,13 @@ app.include_router(auth.router,    prefix="/api/v1/auth",    tags=["Auth"])
 app.include_router(mesas.router,   prefix="/api/v1/mesas",   tags=["Mesas"])
 app.include_router(menu.router,    prefix="/api/v1/menu",    tags=["Menú"])
 app.include_router(pedidos.router, prefix="/api/v1/pedidos", tags=["Pedidos"])
-app.include_router(stats.router,   prefix="/api/v1/stats",   tags=["Stats"])
+app.include_router(comandero.router, prefix="/api/v1/comandero", tags=["Comandero"])
+app.include_router(stats.router,   prefix="/api/v1/stats",   tags=["Stats"], dependencies=[Depends(require_tpv)])
 app.include_router(usuarios.router, prefix="/api/v1/usuarios", tags=["Usuarios"])
 app.include_router(ws_kitchen.router, prefix="/api/v1/ws", tags=["WebSockets"])
 app.include_router(restaurante.router, prefix="/api/v1/restaurante", tags=["Restaurante"])
-app.include_router(gastos.router,     prefix="/api/v1/gastos",      tags=["Gastos"])
-app.include_router(ia.router,         prefix="/api/v1/ia",          tags=["IA"])
+app.include_router(gastos.router,     prefix="/api/v1/gastos",      tags=["Gastos"], dependencies=[Depends(require_tpv)])
+app.include_router(ia.router,         prefix="/api/v1/ia",          tags=["IA"], dependencies=[Depends(require_tpv)])
 
 
 # ── Eventos de ciclo de vida ──────────────────────────────
@@ -80,6 +82,8 @@ async def startup_event():
     logger.info("═══ Arrancando Comandero Digital API v1.0 ═══")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(text("ALTER TABLE restaurantes ADD COLUMN IF NOT EXISTS modo VARCHAR(12) NOT NULL DEFAULT 'TPV'"))
+        await conn.execute(text("ALTER TABLE mesas ADD COLUMN IF NOT EXISTS turno INTEGER NOT NULL DEFAULT 0"))
     logger.info("Tablas DB verificadas/creadas")
 
     # Migration: add nota column to mesas if missing
