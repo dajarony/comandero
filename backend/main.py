@@ -30,7 +30,7 @@ from sqlalchemy import text
 from config import get_settings
 from database import engine, AsyncSessionLocal
 from modelos import Base
-from entradas.routers import auth, comandero, mesas, menu, pedidos, stats, ws_kitchen, usuarios, restaurante, gastos, ia
+from entradas.routers import auth, comandero, impresora, mesas, menu, pedidos, stats, ws_kitchen, usuarios, restaurante, gastos, ia
 from seguridad.deps import require_tpv
 from seguridad.excepciones import AppException, global_exception_handler
 from seguridad.logger import obtener_logger
@@ -67,6 +67,7 @@ app.include_router(mesas.router,   prefix="/api/v1/mesas",   tags=["Mesas"])
 app.include_router(menu.router,    prefix="/api/v1/menu",    tags=["Menú"])
 app.include_router(pedidos.router, prefix="/api/v1/pedidos", tags=["Pedidos"])
 app.include_router(comandero.router, prefix="/api/v1/comandero", tags=["Comandero"])
+app.include_router(impresora.router, prefix="/api/v1/comandero/impresora", tags=["Comandero"])
 app.include_router(stats.router,   prefix="/api/v1/stats",   tags=["Stats"], dependencies=[Depends(require_tpv)])
 app.include_router(usuarios.router, prefix="/api/v1/usuarios", tags=["Usuarios"])
 app.include_router(ws_kitchen.router, prefix="/api/v1/ws", tags=["WebSockets"])
@@ -84,6 +85,10 @@ async def startup_event():
         await conn.run_sync(Base.metadata.create_all)
         await conn.execute(text("ALTER TABLE restaurantes ADD COLUMN IF NOT EXISTS modo VARCHAR(12) NOT NULL DEFAULT 'TPV'"))
         await conn.execute(text("ALTER TABLE mesas ADD COLUMN IF NOT EXISTS turno INTEGER NOT NULL DEFAULT 0"))
+        await conn.execute(text("ALTER TABLE restaurantes ADD COLUMN IF NOT EXISTS impresora_dispositivo VARCHAR(64)"))
+        await conn.execute(text("ALTER TABLE restaurantes ADD COLUMN IF NOT EXISTS impresora_nombre VARCHAR(50)"))
+        await conn.execute(text("ALTER TABLE restaurantes ADD COLUMN IF NOT EXISTS impresora_desde TIMESTAMP"))
+        await conn.execute(text("ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS impreso_en TIMESTAMP"))
     logger.info("Tablas DB verificadas/creadas")
 
     # Migration: add nota column to mesas if missing

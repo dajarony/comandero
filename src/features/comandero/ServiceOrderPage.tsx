@@ -7,7 +7,6 @@ import { offlineStore } from '@/core/api/offlineStore';
 import { tablesApi } from '@/features/tables/api/tablesApi';
 import type { Mesa } from '@/features/tables/types/TablesTypes';
 import { comanderoApi, ROUNDS_ENDPOINT } from './api';
-import { printConfirmedRound } from './printer';
 import styles from './service.module.css';
 
 type Line = { key: string; product: MenuItemApi; quantity: number; note: string };
@@ -103,7 +102,6 @@ function ServiceOrder({ mesaId }: { mesaId: number }) {
         toast('Guardada en este móvil. Pendiente de enviar a cocina.');
       } else {
         toast.success('Comanda enviada a cocina');
-        void printConfirmedRound(response);
       }
       if (recover) await offlineStore.removeOutboxItem(recover).catch(() => {});
       navigate('/comandas', { replace: true });

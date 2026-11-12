@@ -12,9 +12,14 @@ Repositorio principal: [github.com/dajarony/comandero](https://github.com/dajaro
 
 ### Impresora de cocina en Android
 
-- Conecta el móvil y una térmica de red compatible con ESC/POS por TCP 9100 a la misma red local. En **Impresora**, busca dispositivos anunciados por DNS-SD o escribe la IP de la impresora.
-- Selecciona el ancho, imprime una prueba y guarda la impresora si sale bien. Los siguientes envíos confirmados de ese móvil se mandan automáticamente a la térmica. Si hace falta repetir un envío, usa **Imprimir copia** desde Comandas.
-- Usa **Mostrar QR** en el móvil configurado y **Escanear QR** en el otro. El QR contiene la dirección, el nombre y el ancho del papel. Desde un navegador está disponible la pantalla de cocina.
+Un único Android en cocina imprime las rondas de todo el local, también las que los camareros toman desde la web. Los móviles de sala no imprimen.
+
+- Conecta ese móvil y una térmica de red compatible con ESC/POS por TCP 9100 a la misma red local. En **Ajustes → Impresora** (o en el menú de usuario, también con la cuenta de cocina), busca dispositivos anunciados por DNS-SD o escribe la IP de la impresora.
+- Selecciona el ancho, imprime una prueba y guarda la impresora si sale bien. Después pulsa **Usar este móvil como impresora de cocina**. Solo un móvil por local puede tenerlo activo: si otro ya lo tiene, la app pide confirmación y el anterior deja de imprimir y lo avisa.
+- Mientras está activo, una barra fija indica que es la impresora de cocina y si está conectada, y la pantalla no se apaga. Déjalo con la app abierta: Android pausa las apps en segundo plano.
+- Cada ronda llega por WebSocket. Al conectar, al reconectar, al abrir la app y cada 20 s se piden además al servidor las que aún no han salido, así que una ronda enviada sin conexión se imprime al volver. Ninguna sale dos veces: el móvil la recuerda en cuanto la imprime y el servidor la marca como impresa. Solo se imprimen las rondas llegadas después de activar el móvil, y no las de mesas ya cerradas.
+- Si la impresora falla, la barra se pone en rojo, se avisa en pantalla y se reintenta sola. En **Impresora** hay **Reintentar ahora** y **Reimprimir** para las últimas comandas.
+- **Mostrar QR** en un móvil configurado y **Escanear QR** en otro copian la dirección, el nombre y el ancho del papel; sirve para preparar un móvil de repuesto.
 
 ## Que Incluye
 

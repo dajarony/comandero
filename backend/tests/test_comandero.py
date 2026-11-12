@@ -1,41 +1,8 @@
-import os
 from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 from unittest.mock import AsyncMock
 
-import pytest
-from fastapi.testclient import TestClient
-
-
-@pytest.fixture(scope="module")
-def client():
-    from config import get_settings
-
-    test_db = os.getenv("COMANDERO_TEST_DATABASE_URL")
-    if not test_db or get_settings().DATABASE_URL != test_db:
-        pytest.skip("Indica una base PostgreSQL aislada en DATABASE_URL y COMANDERO_TEST_DATABASE_URL")
-    from main import app
-
-    with TestClient(app) as client:
-        yield client
-
-
-def register(client):
-    response = client.post("/api/v1/auth/registro-restaurante", json={
-        "nombre_restaurante": "Bar de prueba", "nombre_admin": "Pruebas",
-        "email": f"comandero-{uuid4().hex}@example.com", "password": "comandero-prueba-local",
-    })
-    assert response.status_code == 201, response.text
-    profile = response.json()["data"]
-    assert profile["usuario"]["modo"] == "COMANDERO"
-    token = profile["access_token"]
-    return token, {"Authorization": f"Bearer {token}"}
-
-
-def data(client, path, headers):
-    response = client.get(f"/api/v1/{path}", headers=headers)
-    assert response.status_code == 200, response.text
-    return response.json()["data"]
+from comandero_utils import data, register
 
 
 def test_enviar_reintentar_y_cerrar_mesa_sin_cobro(client, monkeypatch):

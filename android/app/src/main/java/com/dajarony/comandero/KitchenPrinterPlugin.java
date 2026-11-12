@@ -5,6 +5,7 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.WindowManager;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -58,6 +59,16 @@ public class KitchenPrinterPlugin extends Plugin {
     private static byte[] encode(String text) {
         if (Charset.isSupported("IBM850")) return text.getBytes(Charset.forName("IBM850"));
         return Normalizer.normalize(text, Normalizer.Form.NFD).replaceAll("\\p{M}", "").getBytes(StandardCharsets.US_ASCII);
+    }
+
+    @PluginMethod
+    public void keepAwake(PluginCall call) {
+        boolean enabled = Boolean.TRUE.equals(call.getBoolean("enabled", false));
+        getActivity().runOnUiThread(() -> {
+            if (enabled) getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            else getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            call.resolve();
+        });
     }
 
     @PluginMethod

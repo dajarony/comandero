@@ -40,8 +40,9 @@ export const router = createBrowserRouter([
         { path: '/mesas', element: <ProductPage service={<ServiceTablesPage />} tpv={<TablesPage />} /> },
         { path: '/comandas', element: <ProductPage service={<ServiceRoundsPage />} tpv={<ComandasPage />} /> },
         { path: '/comanda/:mesaId', element: <ProductPage service={<ServiceOrderPage />} tpv={<OrderPageV2 />} /> },
-        { path: '/impresora', element: <ProductPage service={<PrinterPage />} /> },
       ] },
+      // Sala y cocina: el móvil impresora suele estar en cocina
+      { path: '/impresora', element: <ProductPage service={<PrinterPage />} /> },
       { path: '/ticket/:pedidoId', element: <ProductPage tpv={<TicketPage />} /> },
       { path: '/cobro/:mesaId', element: <ProductPage tpv={<CheckoutPage />} /> },
       { path: '/cocina', element: <KitchenPage /> },

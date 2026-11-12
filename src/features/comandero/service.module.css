@@ -69,3 +69,12 @@
 .srOnly { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
 .qr { width: min(100%, 15rem); height: auto; }
 .video { width: 100%; max-height: 17rem; background: #162c27; border-radius: .55rem; }
+.stationBar {
+  position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .9rem;
+  padding: max(.45rem, env(safe-area-inset-top)) 1rem .45rem; font-size: .9rem; text-decoration: none;
+  color: #fff; background: #195d47;
+}
+.stationBar[data-state='pending'] { background: #8a5a12; }
+.stationBar[data-state='failed'] { background: #9b2c20; }
+.stationBar span::before { content: '·'; margin-right: .9rem; opacity: .7; }
+.notice { padding: .7rem .85rem; background: #fff4d9; color: #664612; border-radius: .55rem; }

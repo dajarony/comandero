@@ -1,5 +1,4 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
-import toast from 'react-hot-toast';
 import { useAuthStore } from '@/features/auth/state/authStore';
 import type { PedidoApi } from '@/features/order/api/orderApi';
 
@@ -7,12 +6,12 @@ export type Printer = { name: string; ip: string; columns: 32 | 48 };
 interface PrinterPlugin {
   discover(): Promise<{ printers: { name: string; ip: string }[] }>;
   print(options: { ip: string; text: string }): Promise<void>;
+  keepAwake(options: { enabled: boolean }): Promise<void>;
 }
 
 export const printerAvailable = Capacitor.getPlatform() === 'android' && Capacitor.isPluginAvailable('KitchenPrinter');
 const native = registerPlugin<PrinterPlugin>('KitchenPrinter');
 const printerKey = () => `comandero-impresora-${useAuthStore.getState().usuario?.restaurante_id ?? 'local'}`;
-const attemptedRounds = new Set<number>();
 
 export function validPrinterIp(value: string): boolean {
   if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) return false;
@@ -81,23 +80,8 @@ export function printRound(printer: Printer, round: PedidoApi, copy = false) {
   return native.print({ ip: printer.ip, text: rows.join('\n') });
 }
 
-export async function printConfirmedRound(round: PedidoApi) {
-  if (round.estado !== 'MARCHADO') return;
-  const printer = getPrinter();
-  if (!printer || attemptedRounds.has(round.id)) return;
-  const key = `${printerKey()}-intentos`;
-  let history: number[] = [];
-  try {
-    const stored = JSON.parse(localStorage.getItem(key) ?? '[]');
-    if (Array.isArray(stored)) history = stored;
-  } catch { /* El deduplicado en memoria sigue disponible. */ }
-  if (history.includes(round.id)) return;
-  attemptedRounds.add(round.id);
-  try { localStorage.setItem(key, JSON.stringify([round.id, ...history.slice(0, 255)])); }
-  catch { /* La impresión puede continuar sin historial persistente. */ }
-  try {
-    await printRound(printer, round);
-  } catch {
-    toast.error('La comanda está en cocina. Revisa la impresora y usa «Imprimir copia» si hace falta.');
-  }
+/** Mantiene la pantalla encendida mientras este móvil es la impresora de cocina. */
+export async function keepScreenOn(enabled: boolean) {
+  if (!printerAvailable) return;
+  await native.keepAwake({ enabled }).catch(() => undefined);
 }

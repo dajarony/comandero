@@ -66,11 +66,16 @@ async def require_admin(
     return usuario
 
 
+async def modo_restaurante(db: AsyncSession, restaurante_id: int) -> str:
+    """Devuelve el modo del local (COMANDERO o TPV)."""
+    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == restaurante_id))
+    return modo or "TPV"
+
+
 async def require_tpv(
     usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db),
 ) -> Usuario:
-    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == usuario.restaurante_id))
-    if modo != "TPV":
+    if await modo_restaurante(db, usuario.restaurante_id) != "TPV":
         raise ForbiddenException("Esta función requiere el modo TPV")
     return usuario
 
@@ -78,7 +83,16 @@ async def require_tpv(
 async def require_comandero(
     usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db),
 ) -> Usuario:
-    modo = await db.scalar(select(Restaurante.modo).where(Restaurante.id == usuario.restaurante_id))
+    modo = await modo_restaurante(db, usuario.restaurante_id)
     if modo != "COMANDERO" or usuario.rol not in ("ADMIN", "CAMARERO"):
         raise ForbiddenException("Esta función requiere acceso de sala en modo Comandero")
+    return usuario
+
+
+async def require_local_comandero(
+    usuario: Usuario = Depends(get_current_user), db: AsyncSession = Depends(get_db),
+) -> Usuario:
+    """Cualquier miembro del local (sala o cocina) en modo Comandero."""
+    if await modo_restaurante(db, usuario.restaurante_id) != "COMANDERO":
+        raise ForbiddenException("Esta función requiere el modo Comandero")
     return usuario

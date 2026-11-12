@@ -115,7 +115,7 @@ async function request<T>(
         if (networkFailed) {
             logger.warn(`Conexión fallida intentando ${method} ${endpoint}. Fallback a Offline Store.`);
 
-            if (method === 'GET') {
+            if (method === 'GET' && queueOffline) {
                 // Modo Lectura: Recuperar de caché
                 const cachedData = await offlineStore.getCacheData<T>(endpoint, owner);
                 if (cachedData) {
@@ -147,7 +147,8 @@ async function request<T>(
 
 /** Métodos del cliente API */
 export const apiClient = {
-    get: <T>(endpoint: string) => request<T>(endpoint),
+    /** offline=false: sin conexión lanza error en vez de devolver la copia en caché. */
+    get: <T>(endpoint: string, offline = true) => request<T>(endpoint, {}, offline),
 
     post: <T>(endpoint: string, body?: unknown, queueOffline = true) =>
         request<T>(endpoint, createMutationOptions('POST', body), queueOffline),

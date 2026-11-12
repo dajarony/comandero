@@ -15,3 +15,18 @@ export const comanderoApi = {
   crearProducto: (data: ProductInput) => apiClient.post<MenuItemApi>('/menu/items', data, false),
   actualizarProducto: (id: number, data: ProductInput) => apiClient.put<MenuItemApi>(`/menu/items/${id}`, data, false),
 };
+
+/** Qué móvil del local imprime las comandas en cocina (como máximo uno). */
+export type PrinterStation = { dispositivo_id: string | null; nombre: string | null; activa_desde: string | null };
+const STATION = '/comandero/impresora';
+
+export const stationApi = {
+  estado: () => apiClient.get<PrinterStation>(STATION),
+  activar: (dispositivo_id: string, nombre: string, reemplazar = false) =>
+    apiClient.put<PrinterStation>(STATION, { dispositivo_id, nombre, reemplazar }, false),
+  liberar: (dispositivo_id: string) => apiClient.post<PrinterStation>(`${STATION}/liberar`, { dispositivo_id }, false),
+  pendientes: (dispositivo_id: string) =>
+    apiClient.get<PedidoApi[]>(`${STATION}/pendientes?dispositivo_id=${encodeURIComponent(dispositivo_id)}`, false),
+  impresa: (pedidoId: number, dispositivo_id: string) =>
+    apiClient.post<{ pedido_id: number }>(`${STATION}/rondas/${pedidoId}/impresa`, { dispositivo_id }, false),
+};

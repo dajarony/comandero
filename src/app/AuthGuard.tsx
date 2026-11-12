@@ -9,6 +9,7 @@ import { authApi } from '@/features/auth/api/authApi';
 import { syncManager } from '@/core/api/syncManager';
 import { useAppSocket } from '@/shared/hooks/useAppSocket';
 import { BottomNav } from '@/shared/components/BottomNav';
+import { KitchenStationBar } from '@/features/comandero/KitchenStationBar';
 import { ApiError } from '@/core/api/apiClient';
 
 export function AuthGuard() {
@@ -62,6 +63,7 @@ export function AuthGuard() {
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <KitchenStationBar />
             <div style={{ flex: 1, paddingBottom: '72px' }}>
                 <Outlet />
             </div>

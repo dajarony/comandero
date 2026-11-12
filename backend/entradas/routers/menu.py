@@ -29,7 +29,7 @@ from contratos.respuesta import ApiResponse
 from logica.menu_service import listar_categorias, listar_items, crear_item, actualizar_item
 from logica.servicios.menu_ingest_service import procesar_csv_y_guardar
 from seeds.seed_data import force_reseed_menu
-from seguridad.deps import get_current_user, require_admin
+from seguridad.deps import get_current_user, modo_restaurante, require_admin
 from modelos.usuario import Usuario
 
 router = APIRouter()
@@ -63,7 +63,8 @@ async def endpoint_crear_item(
     admin: Usuario = Depends(require_admin),
 ):
     """Crea nuevo item en el menú (solo admin)."""
-    item = await crear_item(db, datos, admin.restaurante_id)
+    modo = await modo_restaurante(db, admin.restaurante_id)
+    item = await crear_item(db, datos, admin.restaurante_id, permitir_gratis=modo == "COMANDERO")
     return ApiResponse(success=True, data=item)
 
 
@@ -75,7 +76,8 @@ async def endpoint_actualizar_item(
     admin: Usuario = Depends(require_admin),
 ):
     """Actualiza un item del menú (solo admin)."""
-    item = await actualizar_item(db, item_id, datos, admin.restaurante_id)
+    modo = await modo_restaurante(db, admin.restaurante_id)
+    item = await actualizar_item(db, item_id, datos, admin.restaurante_id, permitir_gratis=modo == "COMANDERO")
     return ApiResponse(success=True, data=item)
 
 

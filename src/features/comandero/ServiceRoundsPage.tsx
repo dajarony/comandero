@@ -7,7 +7,6 @@ import { tablesApi } from '@/features/tables/api/tablesApi';
 import type { Mesa } from '@/features/tables/types/TablesTypes';
 import { orderApi, type MenuItemApi, type PedidoApi, type PedidoCreate } from '@/features/order/api/orderApi';
 import { comanderoApi, ROUNDS_ENDPOINT } from './api';
-import { getPrinter, printRound } from './printer';
 import styles from './service.module.css';
 
 type Service = { tables: Mesa[]; rounds: PedidoApi[]; queued: OutboxRequest[] };
@@ -21,7 +20,6 @@ export function ServiceRoundsPage() {
   const [products, setProducts] = useState<MenuItemApi[]>([]);
   const [error, setError] = useState('');
   const [closing, setClosing] = useState<number>();
-  const [printing, setPrinting] = useState<number>();
   const pending = useNetworkStore(s => s.pendingSyncs);
   const failed = useNetworkStore(s => s.failedSyncs);
 
@@ -57,18 +55,6 @@ export function ServiceRoundsPage() {
       toast.error(err instanceof Error ? err.message : 'No se pudo cerrar la mesa.');
       void refresh();
     } finally { setClosing(undefined); }
-  }
-
-  async function reprint(round: PedidoApi) {
-    const printer = getPrinter();
-    if (!printer) return;
-    setPrinting(round.id);
-    try {
-      await printRound(printer, round, true);
-      toast.success('Copia enviada a la impresora');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'No se pudo enviar la copia.');
-    } finally { setPrinting(undefined); }
   }
 
   const activeTables = service?.tables.filter(table => table.estado !== 'LIBRE') ?? [];
@@ -116,7 +102,6 @@ export function ServiceRoundsPage() {
             <div className={styles.row}><h3>Ronda #{round.id}</h3>
               <span className={styles.status} data-state={round.estado === 'LISTO' ? 'ready' : 'pending'}>{round.estado === 'LISTO' ? 'Lista' : 'En cocina'}</span></div>
             <ul className={styles.lines}>{round.lineas.map(line => <li key={line.id}>{line.cantidad} × {line.item_nombre}{line.nota && <small>{line.nota}</small>}</li>)}</ul>
-            {getPrinter() && <button disabled={printing !== undefined} onClick={() => void reprint(round)}>{printing === round.id ? 'Enviando…' : 'Imprimir copia'}</button>}
           </section>)}
           <button disabled={closing !== undefined || hasPending} onClick={() => void close(table)}>{closing === table.id ? 'Cerrando…' : 'Cerrar mesa'}</button>
           {hasPending && <small>Espera a que se envíen las rondas pendientes.</small>}

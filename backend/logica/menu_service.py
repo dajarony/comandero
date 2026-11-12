@@ -24,7 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from modelos.menu import Categoria, MenuItem
 from contratos.menu import CategoriaResponse, ItemMenuCreate, ItemMenuResponse, ItemMenuUpdate
-from seguridad.excepciones import NotFoundException
+from seguridad.excepciones import AppException, NotFoundException
 from seguridad.logger import obtener_logger
 
 logger = obtener_logger("menu_service")
@@ -68,8 +68,17 @@ async def listar_items(db: AsyncSession, restaurante_id: int, categoria_id: int 
     ]
 
 
-async def crear_item(db: AsyncSession, datos: ItemMenuCreate, restaurante_id: int) -> ItemMenuResponse:
+def _validar_precio(precio: float | None, permitir_gratis: bool) -> None:
+    """En TPV todo producto se cobra; solo el Comandero gratuito admite precio 0."""
+    if precio is not None and precio <= 0 and not permitir_gratis:
+        raise AppException("El precio debe ser mayor que 0", status_code=422)
+
+
+async def crear_item(
+    db: AsyncSession, datos: ItemMenuCreate, restaurante_id: int, *, permitir_gratis: bool = False,
+) -> ItemMenuResponse:
     """Crea un nuevo item en el menú (admin only)."""
+    _validar_precio(datos.precio, permitir_gratis)
     cat = await db.scalar(select(Categoria).where(Categoria.id == datos.categoria_id, Categoria.restaurante_id == restaurante_id))
     if not cat:
         raise NotFoundException("Categoría", datos.categoria_id)
@@ -95,8 +104,11 @@ async def crear_item(db: AsyncSession, datos: ItemMenuCreate, restaurante_id: in
     )
 
 
-async def actualizar_item(db: AsyncSession, item_id: int, datos: ItemMenuUpdate, restaurante_id: int) -> ItemMenuResponse:
+async def actualizar_item(
+    db: AsyncSession, item_id: int, datos: ItemMenuUpdate, restaurante_id: int, *, permitir_gratis: bool = False,
+) -> ItemMenuResponse:
     """Actualiza campos de un item del menú."""
+    _validar_precio(datos.precio, permitir_gratis)
     item = await db.scalar(select(MenuItem).where(MenuItem.id == item_id, MenuItem.restaurante_id == restaurante_id))
     if not item:
         raise NotFoundException("MenuItem", item_id)

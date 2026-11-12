@@ -1,9 +1,6 @@
 import { offlineStore } from './offlineStore';
 import { useNetworkStore } from '../state/networkStore';
 import { logger } from '../logger/logger';
-import { ROUNDS_ENDPOINT } from '@/features/comandero/api';
-import { printConfirmedRound } from '@/features/comandero/printer';
-import type { PedidoApi } from '@/features/order/api/orderApi';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 let listenersInitialized = false;
@@ -37,10 +34,6 @@ export const syncManager = {
 
                 if (response.ok) {
                     await offlineStore.removeOutboxItem(request.id);
-                    if (request.endpoint === ROUNDS_ENDPOINT && localStorage.getItem('comandero_token') === token) {
-                        const result = await response.json() as { data?: PedidoApi };
-                        if (result.data) void printConfirmedRound(result.data);
-                    }
                     continue;
                 }
 
